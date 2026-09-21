@@ -1,0 +1,148 @@
+---
+/**
+ * FAQ (CONT-11). Tono yellow, con su propia sección (no usa SectionShell: el contrato pide h2 a la izquierda
+ * y lista a la derecha desde 64em). Un `<details>` nativo por pregunta, sin `name` (no exclusivos) y sin `open`:
+ * cerrados al cargar, se abren con Enter o Espacio y funcionan sin JavaScript. Sin transición de apertura.
+ * Imprime solo `.text` de cada afirmación, sin leer su estado (COPY-01). Ganchos para el plan 07:
+ * `faq-item`, `faq-summary`, `faq-answer`, `faq-icon` y `faq-icon-v`.
+ */
+import { getLanding } from '../../lib/content';
+
+const data = await getLanding();
+const { faq } = data;
+---
+
+<section id="faq" aria-labelledby="faq-title" data-tone="yellow">
+  <div class="wrap faq-grid">
+    <h2 id="faq-title" class="section-title">{faq.title.text}</h2>
+    <div class="faq-list">
+      {
+        faq.items.map((item) => (
+          <details class="faq-item" data-tone="light">
+            <summary class="faq-summary">
+              <span class="faq-question">{item.question.text}</span>
+              <svg class="faq-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+                <circle class="faq-icon-disc" cx="12" cy="12" r="10.5" />
+                <path d="M7 12h10" />
+                <path class="faq-icon-v" d="M12 7v10" />
+              </svg>
+            </summary>
+            <div class="faq-answer">
+              <p>{item.answer.text}</p>
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  section {
+    padding-block: var(--section-y);
+  }
+
+  .faq-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .faq-grid > h2 {
+    align-self: start;
+    min-width: 0;
+  }
+
+  .faq-list {
+    display: grid;
+    gap: 1rem;
+    min-width: 0;
+  }
+
+  .faq-item {
+    border: var(--border-pop);
+    border-radius: var(--radius-card);
+    overflow: visible;
+  }
+
+  .faq-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    min-height: var(--target-min);
+    padding: 1rem;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .faq-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-question {
+    min-width: 0;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  .faq-icon {
+    flex: none;
+    fill: none;
+    stroke: var(--on-surface);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+
+  .faq-icon-disc {
+    fill: var(--color-brand-white);
+    stroke-width: 2;
+  }
+
+  .faq-summary:hover .faq-icon-disc {
+    fill: var(--color-brand-yellow);
+  }
+
+  /* La barra vertical gira sobre su propio centro: la misma barra (10 de largo, mismo trazo) queda
+     encima de la horizontal y el plus queda como minus. La transición vive en `motion.css`. */
+  .faq-icon-v {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .faq-item[open] .faq-icon-v {
+    transform: rotate(90deg);
+  }
+
+  /* Anillo dentro de la tarjeta: el offset negativo suma el ancho del trazo y el desfase estándar. */
+  .faq-summary:focus-visible {
+    outline: var(--focus-width) solid var(--focus-ring);
+    outline-offset: calc(-1 * (var(--focus-width) + var(--focus-offset)));
+    border-radius: calc(var(--radius-card) - 3px);
+  }
+
+  .faq-answer {
+    padding: 1rem;
+    border-top: var(--border-pop);
+    min-width: 0;
+  }
+
+  .faq-answer p {
+    overflow-wrap: anywhere;
+  }
+
+  @media (min-width: 40em) {
+    .faq-summary,
+    .faq-answer {
+      padding: 1.5rem;
+    }
+  }
+
+  @media (min-width: 64em) {
+    .faq-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      column-gap: 3rem;
+      align-items: start;
+    }
+  }
+</style>

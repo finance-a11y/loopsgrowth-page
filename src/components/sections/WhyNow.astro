@@ -1,0 +1,61 @@
+---
+/**
+ * Por qué ahora (CONT-03). Tono yellow. Una fila por afirmación de `why_now.items`; se imprime
+ * solo `.text`, sin leer el estado (COPY-01). Sin CTA. El collage (escena `whynow`: lupa oficial de Loopy
+ * sobre disco morado, píldoras, garabatos y la ranura de foto de 02-11) es decorativo y va en el slot
+ * `aside` de la variante `split` del SectionShell.
+ */
+import SectionShell from '../ui/SectionShell.astro';
+import CollageScene from '../collage/CollageScene.astro';
+import { getLanding } from '../../lib/content';
+
+const data = await getLanding();
+---
+
+<SectionShell id="por-que-ahora" tone="yellow" title={data.why_now.title.text} split>
+  <CollageScene slot="aside" scene="whynow" class="whynow-art" />
+  <ul role="list" class="whynow-list">
+    {data.why_now.items.map((item) => <li>{item.text}</li>)}
+  </ul>
+</SectionShell>
+
+<style>
+  /* Collage de 224 px hasta 64em y, desde 64em, del ancho de su columna con tope de 26rem (416 px) para
+     que llene la columna izquierda frente a la lista de seis filas; el alto sale de la proporción de la escena. */
+  :global(.whynow-art) {
+    width: min(100%, 14rem);
+    margin-top: 2rem;
+  }
+
+  .whynow-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .whynow-list li {
+    padding-block: 1rem;
+    border-top: var(--border-pop);
+    font-size: var(--text-title);
+    line-height: var(--text-title--line-height);
+    font-weight: 600;
+    color: var(--on-surface);
+    overflow-wrap: anywhere;
+  }
+
+  .whynow-list li:last-child {
+    border-bottom: var(--border-pop);
+  }
+
+  @media (min-width: 64em) {
+    :global(.whynow-art) {
+      width: min(100%, 26rem);
+    }
+  }
+
+  @media (min-width: 40em) {
+    .whynow-list li {
+      padding-block: 1.5rem;
+    }
+  }
+</style>

@@ -1,0 +1,48 @@
+---
+/**
+ * Política de privacidad (CONT-12). El doc de Ari no trae el texto legal: el cuerpo es la marca
+ * 'FALTA CONFIRMAR' (pending) y la página queda `noindex` en todo entorno y sin canonical.
+ * Nota para la fase 3: excluirla del sitemap mientras siga `noindex` (`sitemap({ filter })` en
+ * `astro.config.mjs`) y quitar `noindex` de esta página cuando exista el texto legal.
+ * Un `<p>` por afirmación del cuerpo, impreso como nodo de texto; sin h2 ni JavaScript.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getLanding } from '../lib/content';
+
+const { privacy, brand } = await getLanding();
+const title = `${privacy.title.text}: ${brand.name.text}`;
+---
+
+<BaseLayout title={title} noindex path="/privacidad/">
+  <section id="privacidad" class="privacy" aria-labelledby="privacy-title" data-tone="light">
+    <div class="wrap">
+      <h1 id="privacy-title" class="privacy-title">{privacy.title.text}</h1>
+      <div class="privacy-body">
+        {privacy.body.map((paragraph) => <p>{paragraph.text}</p>)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .privacy {
+    padding-block: var(--section-y);
+  }
+
+  /* Es una página de texto: el h1 va en tamaño Heading, no Display (sin sexto tamaño). */
+  .privacy-title {
+    max-width: none;
+    font-size: var(--text-heading);
+    line-height: var(--text-heading--line-height);
+  }
+
+  .privacy-body {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .privacy-body p {
+    overflow-wrap: anywhere;
+  }
+</style>

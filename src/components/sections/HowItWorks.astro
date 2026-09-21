@@ -1,0 +1,145 @@
+---
+/**
+ * Cómo funciona (CONT-09). Tono dark. Lista ordenada de cuatro fases: disco amarillo con el número (contador
+ * CSS en `li::before`), título, descripción y chip de plazo. El conector discontinuo naranja (`li::after`) es
+ * vertical hasta 1023 px y horizontal desde 1024 px; no existe tras la última fase. Imprime solo `.text`, sin
+ * leer el estado (COPY-01): los cuatro plazos son `pending` y se muestran igual. Sin CTA ni movimiento.
+ */
+import SectionShell from '../ui/SectionShell.astro';
+import { getLanding } from '../../lib/content';
+
+const data = await getLanding();
+---
+
+<SectionShell id="como-funciona" tone="dark" title={data.how_it_works.title.text}>
+  <ol class="steps" role="list">
+    {
+      data.how_it_works.steps.map((step) => (
+        <li class="step">
+          <div class="step-body">
+            <h3>{step.title.text}</h3>
+            <p class="step-desc">{step.description.text}</p>
+            <p class="step-time">{step.timeframe.text}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</SectionShell>
+
+<style>
+  .steps {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+  }
+
+  .step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    column-gap: 1rem;
+    min-width: 0;
+    counter-increment: step;
+    text-align: start;
+  }
+
+  .step::before {
+    content: counter(step);
+    display: grid;
+    place-items: center;
+    align-self: start;
+    position: relative;
+    z-index: 1;
+    width: 3rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--color-brand-yellow);
+    color: var(--color-brand-dark);
+    font-size: var(--text-title);
+    font-weight: 700;
+  }
+
+  /* Riel vertical decorativo: de debajo del disco hasta el disco siguiente. */
+  .step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 3rem;
+    bottom: -2rem;
+    left: calc(1.5rem - 1.5px);
+    border-left: 3px dashed var(--bar);
+  }
+
+  .step-body {
+    min-width: 0;
+  }
+
+  .step h3,
+  .step-desc {
+    overflow-wrap: anywhere;
+  }
+
+  .step-desc {
+    margin-top: 0.5rem;
+  }
+
+  .step-time {
+    display: inline-block;
+    max-width: 100%;
+    min-height: 2rem;
+    margin-top: 1rem;
+    padding: 0.25rem 0.75rem;
+    border: 3px solid var(--color-brand-yellow);
+    border-radius: var(--radius-pill);
+    color: var(--color-brand-yellow);
+    font-size: var(--text-label);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  @media (min-width: 64em) {
+    .steps {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--card-gap);
+    }
+
+    .step {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto 1fr;
+      row-gap: 1rem;
+    }
+
+    /* Títulos con dos líneas de reserva y plazo al pie: descripciones y chips quedan alineados entre las cuatro fases. */
+    .step-body {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .step h3 {
+      min-height: 2lh;
+    }
+
+    .step-time {
+      margin-top: auto;
+    }
+
+    .step-desc {
+      margin-bottom: 1rem;
+    }
+
+    /* Conector horizontal: cruza por detrás de los discos hasta el centro del siguiente. */
+    .step:not(:last-child)::after {
+      top: calc(1.5rem - 1.5px);
+      bottom: auto;
+      left: 1.5rem;
+      width: calc(100% + var(--card-gap));
+      border-left: 0;
+      border-top: 3px dashed var(--bar);
+    }
+  }
+</style>

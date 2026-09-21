@@ -1,0 +1,76 @@
+---
+/**
+ * Único punto donde existe el CTA. Es un ancla a #agenda (nunca button ni div) con
+ * el texto visible como nombre accesible: sin etiqueta ARIA que lo reemplace (SC 2.5.3). Todo el color
+ * sale de los tokens semánticos del tono donde se coloque (light, yellow, dark o purple).
+ * `href` es una unión literal: ningún valor del YAML llega al destino (T-02-01-02).
+ */
+interface Props {
+  label: string;
+  location: 'header' | 'hero' | 'solucion' | 'casos';
+  href?: '#agenda' | '/#agenda';
+}
+
+const { label, location, href = '#agenda' } = Astro.props;
+---
+
+<a class="cta" href={href} data-cta={location}>{label}</a>
+
+<style>
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+    min-width: var(--target-min);
+    padding: 0.5rem 1.5rem;
+    border: var(--border-pop);
+    border-radius: var(--radius-pill);
+    background: var(--cta-bg);
+    color: var(--on-cta);
+    box-shadow: 4px 4px 0 var(--pop-shadow-color);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  /* A 320 px el texto (16.6 px, 700) y el relleno de 24 px por lado sumaban 289 px contra 288 de
+     ancho útil y la etiqueta caía a dos líneas. Con 16 px por lado cabe en una línea (273 px). */
+  @media (max-width: 22.5em) {
+    .cta {
+      padding-inline: 1rem;
+    }
+  }
+
+  .cta:hover {
+    background: var(--cta-bg-hover);
+  }
+
+  .cta:focus-visible {
+    outline: var(--focus-width) solid var(--focus-ring);
+    outline-offset: var(--focus-offset);
+  }
+
+  /* Movimiento solo con preferencia explícita de "sin restricción". Bajo
+     `reduce` el hover y el active solo cambian el relleno. */
+  @media (prefers-reduced-motion: no-preference) {
+    .cta {
+      transition:
+        transform var(--dur-1) var(--ease-out),
+        box-shadow var(--dur-1) var(--ease-out),
+        background-color var(--dur-1) var(--ease-out);
+    }
+
+    .cta:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 var(--pop-shadow-color);
+    }
+
+    .cta:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--pop-shadow-color);
+    }
+  }
+</style>

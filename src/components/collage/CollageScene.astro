@@ -1,0 +1,222 @@
+---
+/**
+ * Renderizador único de escenas del collage (plan 02-10). Dibuja lo que `scenes.mjs` describe: una
+ * raíz `div[data-collage]` decorativa (aria-hidden) con una capa svg y, encima, las píldoras en HTML.
+ * Con `bare` (avatares) la raíz es el propio svg y no hay píldoras. `assertScene` corre aquí, en el
+ * build: una escena que rompe una regla de marca no compila.
+ *
+ * Loopy sale del arte oficial de Ari. Por defecto es un `<use>` del sprite (símbolos `lg-ojos` y
+ * `lg-lupa`, esquema por clase `lp-a` o `lp-b`); con `inline` se pinta en línea para que las pupilas
+ * sean elementos alcanzables por CSS (ganchos `.hc-pupil` y `[data-pupil]` que usará el plan 02-07).
+ * En el hero las capas van en seis grupos `[data-piece]` con `--i`, `--r` y `--r-from`; el elemento
+ * exterior de cada grupo nunca lleva transform. Sin movimiento, filtros ni degradados.
+ */
+import Pill from './Pill.astro';
+import CollagePhoto from './CollagePhoto.astro';
+import { SCENES, assertScene, photoFrame } from './scenes.mjs';
+import { chosenPhoto, assertPhotoForSlot } from './photos.mjs';
+import { SCENE_PIECES, SURFACE_OF_COLOR, fillVar } from './collage-rules.mjs';
+import { loopyGeometry, loopyScheme } from './loopy.mjs';
+
+interface Props {
+  scene: string;
+  class?: string;
+  bare?: boolean;
+  variant?: string;
+  /** Id de una candidata del manifiesto: se monta en lugar de la elegida (hoja de elección). */
+  photo?: string;
+}
+
+const { scene: name, class: className, bare = false, variant, photo: photoId } = Astro.props;
+assertScene(name);
+const scene = SCENES[name];
+const n = (v: number) => Number(v.toFixed(2));
+const stageSurface = SURFACE_OF_COLOR[scene.stage];
+
+// Capas de figura (svg) por segmento: en el hero, un segmento por grupo; en el resto, uno solo.
+const drawn = scene.layers.filter((l: any) => l.kind !== 'pill');
+const segments = scene.groups
+  ? scene.groups
+      .filter((g: any) => g.name !== 'pills')
+      .map((g: any) => ({ group: g, layers: drawn.filter((l: any) => l.group === g.name) }))
+  : [{ group: null, layers: drawn }];
+const frame = photoFrame(name);
+if (photoId && !frame) throw new Error(`La escena "${name}" no tiene ranura de foto: no admite la prop photo ("${photoId}").`);
+const photo = frame ? (photoId ? assertPhotoForSlot(photoId, frame.slot) : chosenPhoto(frame.slot)) : undefined;
+const panelGroup = scene.groups?.find((g: any) => g.name === 'panel');
+const pillGroup = scene.groups?.find((g: any) => g.name === 'pills');
+const pills = scene.layers.filter((l: any) => l.kind === 'pill');
+const groupStyle = (g: any) => `--i:${g.i};--r:${g.r};--r-from:${g.rFrom}`;
+
+const loopyOf = (l: any) => {
+  const geo = loopyGeometry(l.art);
+  const [vx, vy, vw, vh] = geo.viewBox;
+  const h = (l.width * vh) / vw;
+  const s = l.width / vw;
+  const surface = l.on === 'stage' ? stageSurface : scene.ground;
+  return {
+    geo,
+    cls: loopyScheme(l.art, surface) === 'A' ? 'lp-a' : 'lp-b',
+    x: n(l.cx - l.width / 2),
+    y: n(l.cy - h / 2),
+    w: n(l.width),
+    h: n(h),
+    transform: `translate(${n(l.cx - l.width / 2 - vx * s)} ${n(l.cy - h / 2 - vy * s)}) scale(${Number(s.toFixed(4))})`,
+  };
+};
+const boxOf = (l: any) => {
+  const piece = SCENE_PIECES[l.piece ?? 'puntos'];
+  return { x: l.x, y: l.y, w: l.w, h: n((l.w * piece.h) / piece.w) };
+};
+const rootAttrs = {
+  class: ['collage', className].filter(Boolean).join(' '),
+  'data-collage': scene.family,
+  'data-collage-scene': scene.name,
+  'data-collage-piece': scene.name,
+  'data-collage-tone': scene.ground,
+  ...(variant ? { 'data-variant': variant } : {}),
+};
+const Wrap = bare ? Fragment : 'div';
+const wrapProps = bare ? {} : { ...rootAttrs, 'aria-hidden': 'true', style: `aspect-ratio:${scene.w}/${scene.h}` };
+const svgProps = bare
+  ? { ...rootAttrs, class: ['collage-layer', className].filter(Boolean).join(' ') }
+  : { class: 'collage-layer' };
+---
+
+<Wrap {...wrapProps}>
+  <svg {...svgProps} viewBox={`0 0 ${scene.w} ${scene.h}`} aria-hidden="true" focusable="false">
+    {
+      segments.map(({ group, layers }: any) => (
+        <g data-piece={group?.name} class={group ? 'cw-piece' : undefined} style={group ? groupStyle(group) : undefined}>
+          {layers.map((l: any) => (
+            <>
+              {l.kind === 'disc' && (
+                <>
+                  {l.shadow && <circle class="cw-shadow" data-trait="shadow" cx={n(l.cx + l.shadow[0])} cy={n(l.cy + l.shadow[1])} r={l.r} />}
+                  <circle class={`cw-f-${l.fill}`} data-trait="stage" cx={l.cx} cy={l.cy} r={l.r} />
+                </>
+              )}
+              {(l.kind === 'rect' || l.kind === 'slot') && (
+                <>
+                  {l.shadow && <rect class="cw-shadow" data-trait="shadow" x={l.x + l.shadow[0]} y={l.y + l.shadow[1]} width={l.w} height={l.h} rx={l.rx} />}
+                  <rect
+                    class={`cw-f-${l.fill}`}
+                    data-trait={l.kind === 'slot' ? 'slot' : 'stage'}
+                    data-photo-slot={l.kind === 'slot' ? l.name : undefined}
+                    x={l.x}
+                    y={l.y}
+                    width={l.w}
+                    height={l.h}
+                    rx={l.rx}
+                  />
+                  {l.dots && (
+                    <use
+                      href="#lg-puntos"
+                      data-trait="dots"
+                      x={l.dots.x}
+                      y={l.dots.y}
+                      width={l.dots.w}
+                      height={boxOf({ ...l.dots }).h}
+                      style={`--cf-a:${fillVar(l.dots.color)}`}
+                    />
+                  )}
+                </>
+              )}
+              {l.kind === 'loopy' &&
+                (l.inline ? (
+                  <g class={loopyOf(l).cls} data-trait="loopy" transform={loopyOf(l).transform}>
+                    {loopyOf(l).geo.parts.map((p: any) => (
+                      <path
+                        class={p.role === 'frame' ? 'lg-frame' : p.role === 'rim' ? 'lg-rim' : p.role === 'pupil' ? 'lg-pupil hc-pupil' : undefined}
+                        data-pupil={p.role === 'pupil' ? '' : undefined}
+                        fill={p.fill}
+                        d={p.d}
+                      />
+                    ))}
+                  </g>
+                ) : (
+                  <use
+                    href={`#lg-${l.art}`}
+                    class={loopyOf(l).cls}
+                    data-trait="loopy"
+                    x={loopyOf(l).x}
+                    y={loopyOf(l).y}
+                    width={loopyOf(l).w}
+                    height={loopyOf(l).h}
+                  />
+                ))}
+              {l.kind === 'doodle' && (
+                <use
+                  href={`#lg-${l.piece}`}
+                  data-trait="doodle"
+                  x={l.x}
+                  y={l.y}
+                  width={l.w}
+                  height={boxOf(l).h}
+                  transform={l.rotate ? `rotate(${l.rotate} ${n(l.x + l.w / 2)} ${n(l.y + boxOf(l).h / 2)})` : undefined}
+                  style={`--cf-a:${fillVar(l.color)}`}
+                />
+              )}
+              {l.kind === 'dots' && (
+                <use href="#lg-puntos" data-trait="dots" x={l.x} y={l.y} width={l.w} height={boxOf(l).h} style={`--cf-a:${fillVar(l.color)}`} />
+              )}
+            </>
+          ))}
+        </g>
+      ))
+    }
+  </svg>
+  {!bare && frame && photo && <CollagePhoto photo={photo.id} frame={frame} group={panelGroup ? groupStyle(panelGroup) : undefined} />}
+  {
+    !bare && pills.length > 0 && (
+      <div class={pillGroup ? 'cw-piece cw-pills' : 'cw-pills'} data-piece={pillGroup?.name} style={pillGroup ? groupStyle(pillGroup) : undefined}>
+        {pills.map((p: any) => (
+          <Pill word={p.word} tone={scene.ground} bg={p.bg} fg={p.fg} x={p.x} y={p.y} anchor={p.anchor} fs={p.fs} shape={p.shape} sceneW={scene.w} sceneH={scene.h} where={`${scene.name}/${p.id}`} />
+        ))}
+      </div>
+    )
+  }
+</Wrap>
+
+<style is:global>
+  .collage {
+    position: relative;
+    display: block;
+    max-width: 100%;
+    container-type: inline-size;
+  }
+
+  .collage-layer {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .cw-pills {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .cw-shadow {
+    fill: var(--pop-shadow-color);
+  }
+  .cw-f-purple {
+    fill: var(--color-brand-purple);
+  }
+  .cw-f-yellow {
+    fill: var(--color-brand-yellow);
+  }
+  .cw-f-orange {
+    fill: var(--color-brand-orange);
+  }
+  .cw-f-white {
+    fill: var(--color-brand-white);
+  }
+  .cw-f-cream {
+    fill: var(--color-brand-cream);
+  }
+  .cw-f-dark {
+    fill: var(--color-brand-dark);
+  }
+</style>

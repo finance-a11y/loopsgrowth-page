@@ -1,0 +1,657 @@
+# REGLA DE STATUS AL NACER (para Ari y Camila)
+# Cada texto es { text, status }. status es "verified" o "pending".
+# Nace "verified" solo en dos casos:
+#   (a) el texto ya existe en el doc de Ari o en los documentos del proyecto;
+#   (b) es microcopy estructural: nombra un control de la interfaz y no afirma
+#       nada del servicio, del proceso, de los plazos, de los resultados ni del equipo.
+# Todo lo demás nace "pending". Un "pending" con texto real se muestra tal cual
+# en la página; solo donde falta el dato el texto visible es "FALTA CONFIRMAR".
+# Nunca hay campos vacíos, etiquetas de borrador ni contenido oculto.
+# "reason" y "confirm_by" son metadatos para la lista de pendientes: no se muestran.
+# Ante la duda: "pending" y se le pide a Ari.
+# La duración y el término viven solo en call.duration y brand.term; las llaves
+# {term} y {duration} de las plantillas los inyectan.
+es:
+  brand:
+    name:
+      text: "Loops Growth"
+      status: verified
+    term:
+      text: "SEO/GEO"
+      status: pending
+      reason: "Terminología por confirmar con Ari"
+  call:
+    duration:
+      text: "30 minutos"
+      status: pending
+      reason: "Duración de la llamada por confirmar"
+  cta:
+    label_template:
+      text: "Agenda tu llamada de {duration}"
+      status: verified
+  skip:
+    nav_label:
+      text: "Saltos de página"
+      status: verified
+    content:
+      text: "Saltar al contenido"
+      status: verified
+    form:
+      text: "Saltar al formulario"
+      status: verified
+  meta:
+    title_template:
+      text: "Loops Growth: agencia de {term}"
+      status: pending
+      reason: "Título provisional derivado de brand.term; la Fase 3 lo reemplaza"
+  hero:
+    h1:
+      text: "Crecemos tu tienda a través de Google, ChatGPT y Gemini."
+      status: verified
+    subtitle:
+      text: "Un equipo dedicado y especializado que ejecuta tu {term} y tu visibilidad en asistentes de IA (ChatGPT, Gemini)."
+      status: pending
+      reason: "Texto del Copy v2 de Ari; el término sale de brand.term, que está pending"
+    description:
+      - text: "Tu cliente te busca en Google y, cada vez más, le pregunta a un asistente de IA."
+        status: pending
+        reason: "Afirmación de mercado del Copy v2 sobre el uso de asistentes de IA; misma familia que COPY-VERIFICATION 3b, datos de EE.UU."
+      - text: "Trabajamos para que tus clientes te encuentren en el momento que te estan buscando, con contenido y optimizaciones y estrategias que terminan en ventas sin depender de ads."
+        status: verified
+      - text: "Contrata un equipo de especialistas con 8 años de experiencia, que arman tu estrategia, ejecutan, implementan y monitorean los resultados y ventas de tu web."
+        status: pending
+        reason: "Credencial del equipo (8 años de experiencia) del Copy v2; Ari la confirma"
+    clients:
+      label:
+        text: "Marcas que han confiado en nuestro trabajo"
+        status: pending
+        confirm_by: Ari
+        reason: "Texto nuevo, no está en el doc de Ari. En ariannalupi.com la sección dice \"Marcas que han confiado en mi trabajo\" (primera persona); aquí va en plural de agencia. Ari debe aprobarlo o reemplazarlo."
+      items:
+        - text: "Holafly"
+          status: verified
+          reason: "Cliente tomado de ariannalupi.com por indicación de Juan el 2026-09-20"
+        - text: "HubSpot"
+          status: verified
+          reason: "Cliente tomado de ariannalupi.com por indicación de Juan el 2026-09-20"
+        - text: "Unilever"
+          status: verified
+          reason: "Cliente tomado de ariannalupi.com por indicación de Juan el 2026-09-20"
+        - text: "Alchemy"
+          status: verified
+          reason: "Cliente tomado de ariannalupi.com por indicación de Juan el 2026-09-20"
+        - text: "Ambl"
+          status: verified
+          reason: "Cliente tomado de ariannalupi.com por indicación de Juan el 2026-09-20"
+        - text: "TravelPerk"
+          status: verified
+          reason: "Cliente tomado de ariannalupi.com por indicación de Juan el 2026-09-20"
+        - text: "Skale"
+          status: verified
+          reason: "Cliente tomado de ariannalupi.com por indicación de Juan el 2026-09-20"
+        - text: "Sendlane"
+          status: verified
+          reason: "Cliente tomado de ariannalupi.com por indicación de Juan el 2026-09-20"
+        - text: "ChartMogul"
+          status: verified
+          reason: "Cliente tomado de ariannalupi.com por indicación de Juan el 2026-09-20"
+        - text: "Holded"
+          status: verified
+          reason: "Cliente tomado de ariannalupi.com por indicación de Juan el 2026-09-20"
+        - text: "Flodesk"
+          status: verified
+          reason: "Cliente tomado de ariannalupi.com por indicación de Juan el 2026-09-20"
+        - text: "Piktochart"
+          status: verified
+          reason: "Cliente tomado de ariannalupi.com por indicación de Juan el 2026-09-20"
+  problem:
+    title:
+      text: "Tu negocio no atrae clientes. Los alquila."
+      status: verified
+    items:
+      - text: "Subiste el presupuesto y el costo por cliente subió igual. Más dinero, mismo resultado. Y cada año pagas más por el mismo cliente."
+        status: verified
+      - text: "Sabes que el orgánico es la salida. Pero no tienes el equipo ni el tiempo para ejecutarlo."
+        status: verified
+      - text: "El problema no es que no sepas que necesitas SEO. Es que sin alguien ejecutándolo en serio, la lista de \"deberíamos hacer esto\" no se mueve  y el negocio se vuelve más dependiente cada trimestre de un canal que se encarece solo."
+        status: verified
+    closing:
+      text: "Mientras tu competencia aparece gratis donde tú pagas por estar."
+      status: verified
+  why_now:
+    title:
+      text: "La búsqueda dejó de ser solo Google."
+      status: verified
+    items:
+      - text: "Google sigue siendo la mayor parte del tráfico de búsqueda."
+        status: verified
+      - text: "Pero una parte creciente de tus clientes ya no hace clic: le pregunta a ChatGPT o a Gemini \"cuál es el mejor\", \"compara estas dos opciones\", \"qué me recomiendas\"."
+        status: pending
+        confirm_by: Ari
+        reason: "Afirmación de mercado del Copy v2 sobre clientes que preguntan a ChatGPT o a Gemini; misma familia que COPY-VERIFICATION 3b (datos de EE.UU.)"
+      - text: "Si la IA no te menciona en esa respuesta, no existes en esa decisión."
+        status: verified
+      - text: "Optimizar solo para Google era suficiente hace unos años."
+        status: verified
+      - text: "Hoy, estar donde tu cliente pregunta (Google y asistentes de IA) es la diferencia entre aparecer en la conversación de compra o quedar fuera de ella."
+        status: verified
+      - text: "Nosotros trabajamos los dos frentes a la vez."
+        status: verified
+  solution:
+    title:
+      text: "FALTA CONFIRMAR"
+      status: pending
+      confirm_by: Ari
+      reason: "Titular del Copy v2 (línea 79): \"Un equipo que ejecuta SEO y AEO, no que te asesora.\" La guarda de copy rechaza la sigla de tres letras que trae; Ari decide qué término usar (hallazgos 1 y 4 del UI-SPEC). No se edita el texto de Ari."
+    lead:
+      text: "La mayoría de agencias te entrega recomendaciones y te deja el trabajo pesado a ti. Nosotros funcionamos como tu equipo interno de crecimiento: hacemos el trabajo, mes a mes, y respondemos por el resultado."
+      status: verified
+    items:
+      - title:
+          text: "Auditoría que muestra el dinero que dejas sobre la mesa"
+          status: verified
+        body:
+          text: "Analizamos técnica, contenido y competencia para que veas dónde estás hoy, dónde deberías estar y por qué tus competidores aparecen cuando tú no. El entregable no es un diagnóstico genérico: es una lista priorizada de oportunidades con su tamaño estimado."
+          status: verified
+      - title:
+          text: "Estrategia para Google y para IA, no dos proyectos separados"
+          status: verified
+        body:
+          text: "Google premia contenido, autoridad y una base técnica limpia. Los asistentes de IA citan fuentes que consideran confiables y bien estructuradas. Trabajamos ambos con la misma máquina de contenido y autoridad, para que cada pieza sirva en los dos lados."
+          status: verified
+      - title:
+          text: "Un equipo dedicado que ejecuta"
+          status: verified
+        body:
+          text: "No somos consultores. Somos las personas que hacen el trabajo:"
+          status: verified
+        list:
+          - text: "Juan (Director Técnico): auditorías, Core Web Vitals, arquitectura."
+            status: verified
+          - text: "Miguel (Especialista SEO): keywords, contenido, link building."
+            status: verified
+          - text: "Verónica (Gerente de Proyectos y Consultora SEO): timeline, reportes, tu contacto directo."
+            status: pending
+            confirm_by: Ari
+            reason: "El cargo del Copy v2 en La solución ('Gerente de Proyectos y Consultora SEO') difiere del de Quiénes somos ('Directora de Proyectos'); Ari confirma cuál usar"
+          - text: "Arianna (Fundadora): estrategia y direcciôn"
+            status: verified
+      - title:
+          text: "Reportes que hablan de ventas, no de posiciones"
+          status: verified
+        body:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Cuerpo del Pilar 4 del Copy v2 (línea 104): \"Cada mes ves qué se hizo, qué se movió y cuánto te costó contra cuánto generó. Nada de \"subimos 20%\". Más bien: \"el orgánico trajo X visitas, convirtieron Y, compraron Z\". [VERIFICAR: solo desglosa por canal (Google vs IA) si de verdad puedes atribuirlo con datos. Si no, repórtalo junto y no inventes el split.]\" La nota entre corchetes pide verificar el desglose por canal; Ari lo respalda con datos o lo suaviza. No se recorta la nota para publicar el resto."
+  results:
+    title:
+      text: "Lo que cambia en 6 a 12 meses"
+      status: verified
+    items:
+      - lead:
+          text: "Tu costo por cliente baja."
+          status: verified
+        body:
+          text: "Cada cliente que llega desde orgánico cuesta una fracción de lo que cuesta por ads, y esa diferencia crece con el tiempo (el orgánico se abarata, los ads se encarecen)."
+          status: pending
+          confirm_by: Ari
+          reason: "Cuerpo del resultado 1 del Copy v2 (sección 4). Incluye la inferencia 'el orgánico se abarata' y 'una fracción', sin respaldo literal (COPY-VERIFICATION 3d); Ari lo confirma con datos o lo suaviza. No se edita el texto."
+      - lead:
+          text: "Dependes menos de los ads."
+          status: pending
+          confirm_by: Ari
+          reason: "Lead del resultado 2 del Copy v2 (sección 4). Resume el resultado cuyo rango de presupuesto no tiene respaldo; se muestra tal cual, sin cifra, y Ari decide si se mantiene cuando entregue el dato."
+        body:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Cuerpo del resultado 2 del Copy v2 (sección 4): \"Varios clientes bajan entre 30% y 50% su presupuesto de ads manteniendo el mismo tráfico. [VERIFICAR rango]\". El rango no tiene respaldo propio (COPY-VERIFICATION, detalle 2), así que la página no lo publica ni lo suaviza. Ari aporta el dato con su fuente o decide otro texto."
+      - lead:
+          text: "Apareces donde antes no estabas."
+          status: verified
+        body:
+          text: "En Google y en las respuestas de IA cuando tu cliente pide recomendaciones."
+          status: verified
+      - lead:
+          text: "El crecimiento se acumula."
+          status: verified
+        body:
+          text: "No es un pico de un mes. El contenido que rankea hoy sigue trayendo clientes el año que viene, sin volver a pagar por él."
+          status: verified
+  cases:
+    title:
+      text: "Casos de exito"
+      status: pending
+      confirm_by: Ari
+      reason: "Rótulo de la sección 5 del Copy v2 (el doc no trae titular para casos), con la errata sin tilde en exito. Ari confirma el titular y la ortografía."
+    labels:
+      sector:
+        text: "Sector"
+        status: verified
+      period:
+        text: "Plazo"
+        status: verified
+      channel:
+        text: "Canal"
+        status: verified
+    items:
+      - figure:
+          text: "+85%"
+          status: verified
+        metric:
+          text: "en ventas"
+          status: verified
+        detail:
+          text: "De $41K a $76K en ventas en 6 meses, con estrategia de contenido y optimización técnica."
+          status: verified
+        sector:
+          text: "e-commerce de vapes (LATAM)"
+          status: verified
+        period:
+          text: "6 meses"
+          status: pending
+          confirm_by: Ari
+          reason: "Plazo tomado del detalle del caso en el Copy v2 (sección 5); el UI-SPEC pide que Ari confirme los cinco plazos."
+        channel:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Canal del caso 1: el Copy v2 (sección 5) no lo nombra. Se lo pedimos a Ari; el chip y el dato de Canal muestran el relleno hasta que lo entregue."
+      - figure:
+          text: "+237%"
+          status: verified
+        metric:
+          text: "en tráfico"
+          status: verified
+        detail:
+          text: "De 1.267 a 4.230 clics mensuales en 6 meses, que se tradujeron en 552 inscripciones de calidad."
+          status: verified
+        sector:
+          text: "academia de salud (EE.UU.)"
+          status: verified
+        period:
+          text: "6 meses"
+          status: pending
+          confirm_by: Ari
+          reason: "Plazo tomado del detalle del caso en el Copy v2 (sección 5); el UI-SPEC pide que Ari confirme los cinco plazos."
+        channel:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Canal del caso 2: el Copy v2 (sección 5) no lo nombra. Se lo pedimos a Ari; el chip y el dato de Canal muestran el relleno hasta que lo entregue."
+      - figure:
+          text: "x3"
+          status: verified
+        metric:
+          text: "en conversiones"
+          status: verified
+        detail:
+          text: "+132% de tráfico orgánico y conversiones triplicadas en 6 meses."
+          status: verified
+        sector:
+          text: "software de email marketing (SaaS B2B)"
+          status: verified
+        period:
+          text: "6 meses"
+          status: pending
+          confirm_by: Ari
+          reason: "Plazo tomado del detalle del caso en el Copy v2 (sección 5); el UI-SPEC pide que Ari confirme los cinco plazos."
+        channel:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Canal del caso 3: el Copy v2 (sección 5) no lo nombra (el detalle habla de tráfico orgánico, pero no dice cuál fue el canal del caso). Se lo pedimos a Ari; el chip y el dato de Canal muestran el relleno hasta que lo entregue."
+      - figure:
+          text: "+3.808%"
+          status: verified
+        metric:
+          text: "en clics"
+          status: verified
+        detail:
+          text: "De cero a un posicionamiento sólido en 12 meses."
+          status: verified
+        sector:
+          text: "app infantil"
+          status: verified
+        period:
+          text: "12 meses"
+          status: pending
+          confirm_by: Ari
+          reason: "Plazo tomado del detalle del caso 4 en el Copy v2 (sección 5); el UI-SPEC pide que Ari confirme los cinco plazos."
+        channel:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Canal del caso 4: el Copy v2 (sección 5) no lo nombra. Se lo pedimos a Ari; el chip y el dato de Canal muestran el relleno hasta que lo entregue."
+      - figure:
+          text: "+500%"
+          status: verified
+        metric:
+          text: "en crecimiento de trafico organico"
+          status: pending
+          confirm_by: Ari
+          reason: "Métrica del caso 5 del Copy v2 (sección 5), tal como está en el doc, con la errata sin tilde en trafico y organico. El caso es de Meta Ads y la métrica habla de tráfico orgánico: Ari confirma la métrica y la ortografía. El doc no trae línea de detalle para este caso y termina sin punto final."
+        sector:
+          text: "marca personal referente en Meta Ads"
+          status: pending
+          confirm_by: Ari
+          reason: "El doc trae una sola frase para el caso 5 (marca personal referente en Meta Ads); se muestra completa como sector y Ari confirma cómo se divide."
+        period:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Plazo del caso 5: el Copy v2 (sección 5) no lo da. Se lo pedimos a Ari."
+        channel:
+          text: "Meta Ads"
+          status: pending
+          confirm_by: Ari
+          reason: "Canal del caso 5 tomado de la frase del doc (subcadena de marca personal referente en Meta Ads); Ari lo confirma."
+  team:
+    title:
+      text: "Quiénes somos"
+      status: verified
+    members:
+      - name:
+          text: "Arianna Lupi"
+          status: pending
+          confirm_by: Ari
+          reason: "Consentimiento del integrante para publicar su nombre y cargo (STATE, Fase 2); Ari confirma"
+        role:
+          text: "Fundadora y estratega SEO"
+          status: verified
+      - name:
+          text: "Verónica Romero"
+          status: pending
+          confirm_by: Ari
+          reason: "Consentimiento del integrante para publicar su nombre y cargo (STATE, Fase 2); Ari confirma"
+        role:
+          text: "Directora de Proyectos"
+          status: verified
+      - name:
+          text: "Juan Carlos Angulo"
+          status: pending
+          confirm_by: Ari
+          reason: "Consentimiento del integrante para publicar su nombre y cargo (STATE, Fase 2); el nombre completo lo indicó Juan Carlos Angulo el 2026-09-20 (el doc de Ari dice Juan Angulo) y Ari confirma"
+        role:
+          text: "Director técnico"
+          status: verified
+        link:
+          url:
+            text: "https://juan-tech.com"
+            status: verified
+            reason: "Enlace indicado por Juan Carlos Angulo el 2026-09-20; no viene del doc de Ari, que puede pedir quitarlo"
+          label:
+            text: "juan-tech.com"
+            status: verified
+            reason: "Texto visible del enlace, indicado por Juan Carlos Angulo el 2026-09-20"
+          hint:
+            text: "se abre en una pestaña nueva"
+            status: verified
+            reason: "Complemento solo para lectores de pantalla del enlace externo; Juan Carlos Angulo, 2026-09-20"
+      - name:
+          text: "Miguel Pacheco"
+          status: pending
+          confirm_by: Ari
+          reason: "Consentimiento del integrante para publicar su nombre y cargo (STATE, Fase 2); Ari confirma"
+        role:
+          text: "Especialista SEO"
+          status: verified
+  includes:
+    title:
+      text: "Qué incluye"
+      status: verified
+    items:
+      - title:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Texto del Copy v2: 'Auditoría SEO + AEO completa'. La guarda rechaza AEO; Ari decide el término (SEO/GEO o AEO) y entrega el texto final"
+        description:
+          text: "para que sepas exactamente dónde ganar antes de gastar un peso."
+          status: verified
+      - title:
+          text: "Estrategia a 6-12 meses"
+          status: verified
+        description:
+          text: "para que sepas qué haremos, cuándo y cuándo esperar resultados."
+          status: verified
+      - title:
+          text: "Optimización técnica"
+          status: verified
+        description:
+          text: "(Core Web Vitals, velocidad, indexación, schema), para que Google y la IA puedan leerte y confiar en ti."
+          status: verified
+      - title:
+          text: "Contenido estratégico"
+          status: verified
+        description:
+          text: "para que rankees en Google y te citen los asistentes de IA con las mismas piezas."
+          status: verified
+      - title:
+          text: "Link building y autoridad"
+          status: verified
+        description:
+          text: "para que te tomen en serio como fuente confiable."
+          status: verified
+      - title:
+          text: "Reportes mensuales"
+          status: verified
+        description:
+          text: "para que veas el retorno en dinero, no en métricas de vanidad."
+          status: verified
+  how_it_works:
+    title:
+      text: "Cómo funciona"
+      status: verified
+    steps:
+      - title:
+          text: "Llamada de conocimiento"
+          status: verified
+        description:
+          text: "Entendemos tu negocio, tus metas y tu punto de partida. Vemos si somos buen match. Sin presión."
+          status: verified
+        timeframe:
+          text: "30 min"
+          status: pending
+          confirm_by: Ari
+          reason: "Plazo del Copy v2 (30 min); el embudo y el formulario hablan de 20 min (hallazgo 5 del UI-SPEC); Ari alinea con call.duration"
+      - title:
+          text: "Auditoría y propuesta"
+          status: verified
+        description:
+          text: "Análisis profundo, 10-20 oportunidades principales, plan claro e inversión concreta."
+          status: verified
+        timeframe:
+          text: "2 semanas"
+          status: pending
+          confirm_by: Ari
+          reason: "Plazo del Copy v2; los plazos de las cuatro fases quedan pending hasta que Ari confirme (CONTEXT)"
+      - title:
+          text: "Ejecución"
+          status: verified
+        description:
+          text: "Meses 1-3 fundaciones, meses 3-6 primer crecimiento, meses 6-12 tracción que se acumula."
+          status: verified
+        timeframe:
+          text: "6-12 meses"
+          status: pending
+          confirm_by: Ari
+          reason: "Plazo del Copy v2 (coincide con Estrategia a 6-12 meses de Qué incluye); Ari confirma (CONTEXT)"
+      - title:
+          text: "Sistema funcionando"
+          status: verified
+        description:
+          text: "El orgánico trae clientes solo; nosotros seguimos optimizando y escalando."
+          status: verified
+        timeframe:
+          text: "mes 12+"
+          status: pending
+          confirm_by: Ari
+          reason: "Plazo del Copy v2; los plazos de las cuatro fases quedan pending hasta que Ari confirme (CONTEXT)"
+  for_whom:
+    title:
+      text: "FALTA CONFIRMAR"
+      status: pending
+      confirm_by: Ari
+      reason: "Título de la sección Para quién es; el doc de Ari no trae esta sección y Ari entrega el título"
+    is_for:
+      title:
+        text: "Para quién es"
+        status: pending
+        confirm_by: Ari
+        reason: "Nombre tomado de CONTEXT; el doc de Ari no trae esta sección"
+      items:
+        - text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Primer ítem de la columna 'es': debe comunicar el perfil de empresa que factura USD 200k o más al año; Ari entrega el texto; no publicar rangos ni cifras de inversión sin aprobación"
+        - text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Ítem 2 de la columna 'es' de Para quién es; el doc de Ari no trae esta sección, Ari entrega el texto; no publicar rangos ni cifras de inversión sin aprobación"
+        - text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Ítem 3 de la columna 'es' de Para quién es; el doc de Ari no trae esta sección, Ari entrega el texto; no publicar rangos ni cifras de inversión sin aprobación"
+    is_not_for:
+      title:
+        text: "Para quién no es"
+        status: pending
+        confirm_by: Ari
+        reason: "Nombre tomado de CONTEXT; el doc de Ari no trae esta sección"
+      items:
+        - text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Ítem 1 de la columna 'no es' de Para quién es; el doc de Ari no trae esta sección, Ari entrega el texto; no publicar rangos ni cifras de inversión sin aprobación"
+        - text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Ítem 2 de la columna 'no es' de Para quién es; el doc de Ari no trae esta sección, Ari entrega el texto; no publicar rangos ni cifras de inversión sin aprobación"
+        - text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Ítem 3 de la columna 'no es' de Para quién es; el doc de Ari no trae esta sección, Ari entrega el texto; no publicar rangos ni cifras de inversión sin aprobación"
+  faq:
+    title:
+      text: "FALTA CONFIRMAR"
+      status: pending
+      confirm_by: Ari
+      reason: "Título del FAQ; el doc de Ari no trae esta sección y Ari entrega el título"
+    items:
+      - question:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Pregunta 1 del FAQ, tema: qué es GEO; el doc de Ari no trae esta sección y Ari entrega el texto"
+        answer:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Respuesta 1 del FAQ, tema: qué es GEO; Ari entrega el texto"
+      - question:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Pregunta 2 del FAQ, tema: duración de la llamada; el doc de Ari no trae esta sección y Ari entrega el texto"
+        answer:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Respuesta 2 del FAQ, tema: duración de la llamada; Ari entrega el texto"
+      - question:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Pregunta 3 del FAQ, tema: qué preparar para la llamada; el doc de Ari no trae esta sección y Ari entrega el texto"
+        answer:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Respuesta 3 del FAQ, tema: qué preparar para la llamada; Ari entrega el texto"
+      - question:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Pregunta 4 del FAQ, tema: inversión; el doc de Ari no trae esta sección y Ari entrega el texto"
+        answer:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Respuesta 4 del FAQ, tema: inversión; Ari entrega el texto; no publicar rangos ni cifras de inversión sin aprobación"
+      - question:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Pregunta 5 del FAQ, tema: tiempos de resultados; el doc de Ari no trae esta sección y Ari entrega el texto"
+        answer:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Respuesta 5 del FAQ, tema: tiempos de resultados; Ari entrega el texto"
+      - question:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Pregunta 6 del FAQ, tema: si aplica a mi negocio; el doc de Ari no trae esta sección y Ari entrega el texto"
+        answer:
+          text: "FALTA CONFIRMAR"
+          status: pending
+          confirm_by: Ari
+          reason: "Respuesta 6 del FAQ, tema: si aplica a mi negocio; Ari entrega el texto"
+  agenda:
+    title:
+      text: "¿Listo para que te encuentren cuando te estan buscando?"
+      status: verified
+    intro:
+      text: "Agenda una llamada de {duration}. Sin costo y sin compromiso. Entendemos tu negocio y te decimos con honestidad si podemos ayudarte. Si no somos el equipo correcto, también te lo decimos."
+      status: pending
+      reason: "Cuerpo del CTA final del Copy v2 de Ari; la duración sale de call.duration, que está pending"
+    fallback_lead:
+      text: "¿El formulario no carga o prefieres abrirlo aparte?"
+      status: verified
+    fallback_link:
+      text: "Abre el formulario en una pestaña nueva"
+      status: verified
+    iframe_title:
+      text: "Formulario para agendar tu llamada con Loops Growth"
+      status: verified
+    noscript:
+      text: "Para ver el formulario aquí necesitas activar JavaScript."
+      status: verified
+  footer:
+    nav_label:
+      text: "Enlaces del pie de página"
+      status: verified
+    privacy_link:
+      text: "Política de privacidad"
+      status: verified
+    contact_label:
+      text: "Contacto"
+      status: verified
+    email:
+      text: "FALTA CONFIRMAR"
+      status: pending
+      confirm_by: Ari
+      reason: "El doc de Ari no trae el correo de contacto del pie de página; Ari entrega la dirección"
+    social_label:
+      text: "Redes"
+      status: verified
+    social:
+      text: "FALTA CONFIRMAR"
+      status: pending
+      confirm_by: Ari
+      reason: "El doc de Ari no trae las redes del pie de página; Ari entrega cada red con su nombre y su URL"
+  privacy:
+    title:
+      text: "Política de privacidad"
+      status: verified
+    body:
+      - text: "FALTA CONFIRMAR"
+        status: pending
+        confirm_by: Ari
+        reason: "El doc de Ari no trae la política de privacidad; Ari entrega el texto legal"
+  config:
+    form_url: "https://forms.clickup.com/90131720021/f/2ky49tun-19253/DATFKMESVSMXZY5CO5"
+    form_script_src: "https://app-cdn.clickup.com/assets/js/forms-embed/v1.js"

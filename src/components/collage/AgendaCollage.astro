@@ -1,0 +1,33 @@
+---
+/**
+ * Composición del collage de `#agenda` (columna izquierda, solo desde 64em): la escena `agenda` de
+ * `scenes.mjs`, con el Loopy oficial de dos ojos sobre un disco amarillo, dos píldoras (team work y
+ * seo), garabatos y retícula sobre el morado de la sección. Sin ranura de foto. Decorativa
+ * (aria-hidden), sin texto SVG ni imágenes ni movimiento propio.
+ *
+ * La raíz es un `div[data-collage="agenda"]` y todo lo pintado queda dentro de su caja (regla R6),
+ * así que no invade la columna del formulario ni su anillo de foco. Se oculta por debajo de 64em por
+ * responsividad, no por movimiento. `CollageScene` valida la escena en el build.
+ */
+import CollageScene from './CollageScene.astro';
+
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<CollageScene scene="agenda" class:list={['agenda-collage', className]} />
+
+<style is:global>
+  .agenda-collage {
+    display: none;
+  }
+
+  @media (min-width: 64em) {
+    .agenda-collage {
+      display: block;
+      width: 100%;
+    }
+  }
+</style>

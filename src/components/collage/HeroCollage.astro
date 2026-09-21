@@ -1,0 +1,13 @@
+---
+/**
+ * HeroCollage (DSGN-03). Sustituye al collage de línea gruesa de 02-01: ahora es la escena `hero` de
+ * `scenes.mjs`, con el Loopy oficial de dos ojos sobre un disco morado, un panel de foto, dos
+ * píldoras, garabatos y retícula. Decorativo (aria-hidden), sin texto SVG, sin imágenes.
+ * Ganchos para el plan 02-07: seis grupos `[data-piece]` (stage, panel, loopy, pills, doodles y dots)
+ * con `--i`, `--r` y `--r-from`, y las dos pupilas `.hc-pupil` y `[data-pupil]`. Aquí no hay
+ * movimiento. Ranura de foto para el plan 02-11: `[data-photo-slot="hero"]`, caja en `PHOTO_SLOTS`.
+ */
+import CollageScene from './CollageScene.astro';
+---
+
+<CollageScene scene="hero" class="hero-collage" />

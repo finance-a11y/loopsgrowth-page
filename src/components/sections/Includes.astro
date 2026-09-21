@@ -1,0 +1,102 @@
+---
+/**
+ * Qué incluye (CONT-08). Tono light. Seis entregables abiertos, sin tarjeta ni sombra: borde superior de 3 px,
+ * disco de check amarillo, título y descripción del doc de Ari. Imprime solo `.text` de cada afirmación, sin leer
+ * su estado (COPY-01): el primer título es `pending` (FALTA CONFIRMAR) y se muestra igual. Sin CTA ni enlaces.
+ */
+import SectionShell from '../ui/SectionShell.astro';
+import LangText from '../ui/LangText.astro';
+import { getLanding } from '../../lib/content';
+
+const data = await getLanding();
+---
+
+<SectionShell id="incluye" tone="light" title={data.includes.title.text}>
+  <ul class="includes-grid" role="list">
+    {
+      data.includes.items.map((item) => (
+        <li class="include-item">
+          <span class="include-check" aria-hidden="true">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M5 12l5 5l10 -10" />
+            </svg>
+          </span>
+          <h3><LangText text={item.title.text} /></h3>
+          <p class="include-desc"><LangText text={item.description.text} /></p>
+        </li>
+      ))
+    }
+  </ul>
+</SectionShell>
+
+<style>
+  .includes-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: var(--card-gap);
+    row-gap: 2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .include-item {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    column-gap: 0.75rem;
+    row-gap: 0.5rem;
+    align-content: start;
+    min-width: 0;
+    padding-top: 1rem;
+    border-top: 3px solid var(--on-surface);
+    text-align: start;
+  }
+
+  .include-check {
+    display: grid;
+    place-items: center;
+    align-self: start;
+    width: 2rem;
+    aspect-ratio: 1;
+    border: 3px solid var(--on-surface);
+    border-radius: 50%;
+    background: var(--color-brand-yellow);
+    color: var(--on-surface);
+  }
+
+  .include-check svg {
+    width: 1rem;
+    aspect-ratio: 1;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .include-item h3,
+  .include-desc {
+    overflow-wrap: anywhere;
+  }
+
+  .include-item h3 {
+    grid-column: 2;
+    align-self: center;
+  }
+
+  .include-desc {
+    grid-column: 2;
+  }
+
+  @media (min-width: 40em) {
+    .includes-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64em) {
+    .includes-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

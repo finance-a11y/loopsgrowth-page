@@ -1,0 +1,88 @@
+---
+/**
+ * Tarjeta de pilar (CONT-04): chip de collage, h3, cuerpo y, si existe, lista del equipo. Imprime solo
+ * los textos recibidos (nunca `status`, `reason` ni `confirm_by`). El chip es una escena mini de 96 x 80
+ * del collage de marca (`chip-<chip>`, fondo `light` porque va sobre la tarjeta blanca), decorativa y
+ * aria-hidden. Sombra dura, sin hover, cursor, transform ni transición: la tarjeta no es interactiva.
+ */
+import CollageScene from '../collage/CollageScene.astro';
+import LangText from './LangText.astro';
+
+interface Props {
+  chip: 'lupa' | 'ojos' | 'loop' | 'clic';
+  title: string;
+  body: string;
+  list?: string[];
+}
+
+const { chip, title, body, list } = Astro.props;
+---
+
+<li class="pillar-card">
+  <CollageScene scene={`chip-${chip}`} class="pillar-chip" />
+  <h3><LangText text={title} /></h3>
+  <p class="pillar-body"><LangText text={body} /></p>
+  {
+    list && (
+      <ul role="list" class="pillar-team">
+        {list.map((text) => (
+          <li><LangText text={text} /></li>
+        ))}
+      </ul>
+    )
+  }
+</li>
+
+<style>
+  .pillar-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: var(--card-pad);
+    border: var(--border-pop);
+    border-radius: var(--radius-card);
+    background: var(--color-brand-white);
+    color: var(--on-surface);
+    box-shadow: var(--shadow-pop);
+    overflow-wrap: anywhere;
+  }
+
+  /* Ritmo en tablero: las tarjetas 2 y 4 van sobre crema (par oscuro sobre crema aprobado, 14.37). */
+  .pillar-card:nth-child(even) {
+    background: var(--color-brand-cream);
+  }
+
+  .pillar-card :global(.pillar-chip) {
+    flex: none;
+    width: 6rem;
+  }
+
+  .pillar-card h3 {
+    margin-top: 1rem;
+  }
+
+  .pillar-body {
+    margin-top: 0.5rem;
+    color: var(--on-surface);
+  }
+
+  /* Filas del equipo con la regla de 3 px de la lista de Por qué ahora; la última cierra con la del borde. */
+  .pillar-team {
+    display: grid;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pillar-team li {
+    min-width: 0;
+    padding-block: 0.75rem;
+    border-top: var(--border-pop);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .pillar-team li:last-child {
+    padding-bottom: 0;
+  }
+</style>

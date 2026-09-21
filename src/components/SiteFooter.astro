@@ -1,0 +1,137 @@
+---
+/**
+ * Footer (CONT-12), fuera de `main` y montado por BaseLayout en cada ruta. Bloque de marca (logo
+ * horizontal de la mesa 06, sin enlace en `/` y con enlace a `/` en las demás rutas) y un `<nav
+ * aria-label>` con contacto y redes (pendientes de Ari: se muestra el relleno 'FALTA CONFIRMAR' tal
+ * cual) más el enlace a la política de privacidad. Sin encabezados, sin JavaScript y sin texto que no
+ * salga del YAML (sin "todos los derechos reservados", año ni línea de marca inventada).
+ *
+ * El correo se emite como enlace solo si el texto recortado cumple la expresión estricta de
+ * `src/lib/email.mjs`: ningún signo de interrogación, coma, punto y coma, dos puntos, espacio ni `%`
+ * (que el cliente decodificaría a `?` o a un salto de línea), para que un valor inyectado no arme una URL
+ * con parámetros ni cabeceras. Esa expresión es la única fuente de enlaces de correo.
+ * Una, dos y tres columnas; el bloque de marca pesa 1,2 veces cada uno de los otros dos y el logo
+ * conserva su área de salvado (BrandBook, página 7): la separación no baja de su altura.
+ */
+import Logo from './brand/Logo.astro';
+import { getLanding } from '../lib/content';
+import { EMAIL_RE } from '../lib/email.mjs';
+
+const { footer, brand } = await getLanding();
+const onPrivacy = Astro.url.pathname.startsWith('/privacidad');
+// En `/` el logo no es un destino; en las demás rutas lleva a la home.
+const homeHref = Astro.url.pathname === '/' ? undefined : '/';
+// Un solo valor alimenta el tono del pie y el del logo, para que no puedan separarse.
+const tone = 'light';
+const email = footer.email.text.trim();
+const emailHref = EMAIL_RE.test(email) ? `mailto:${email}` : undefined;
+---
+
+<footer class="site-footer" data-tone={tone}>
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <Logo name={brand.name.text} href={homeHref} variant="horizontal" tone={tone} />
+    </div>
+    <nav class="footer-nav" aria-label={footer.nav_label.text}>
+      <div class="footer-block">
+        <p class="footer-label">{footer.contact_label.text}</p>
+        {
+          emailHref ? (
+            <a class="footer-link" href={emailHref}>
+              {email}
+            </a>
+          ) : (
+            <p class="footer-value">{footer.email.text}</p>
+          )
+        }
+      </div>
+      <div class="footer-block">
+        <p class="footer-label">{footer.social_label.text}</p>
+        <p class="footer-value">{footer.social.text}</p>
+        <a class="footer-link" href="/privacidad/" aria-current={onPrivacy ? 'page' : undefined}>{footer.privacy_link.text}</a>
+      </div>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    --footer-gap: 2rem;
+    border-top: var(--border-pop);
+    padding-block: var(--section-y);
+  }
+
+  /* Una columna: marca y luego el nav, con una separación de al menos la altura del logo. */
+  .footer-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--footer-gap);
+    align-items: start;
+  }
+
+  .footer-brand,
+  .footer-nav {
+    min-width: 0;
+  }
+
+  .footer-nav {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--footer-gap);
+  }
+
+  .footer-block {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+    align-content: start;
+    min-width: 0;
+  }
+
+  .footer-label {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    font-weight: 700;
+  }
+
+  .footer-value {
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+
+  .footer-link {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    min-height: var(--target-min);
+    min-width: 0;
+    max-width: 100%;
+    color: var(--link);
+    overflow-wrap: anywhere;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+
+  .footer-link:hover {
+    text-decoration-thickness: 3px;
+  }
+
+  @media (min-width: 40em) {
+    .footer-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+
+  /* Tres bloques alineados 1,2 a 1 a 1: el nav ocupa dos columnas con una rejilla interna de dos. */
+  @media (min-width: 64em) {
+    .footer-grid {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .footer-nav {
+      grid-column: span 2;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+</style>

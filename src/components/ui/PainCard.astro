@@ -1,0 +1,68 @@
+---
+/**
+ * Tarjeta de dolor (CONT-02). Blanca por tono anidado `light` dentro de la sección dark. Imprime solo
+ * el texto recibido (nunca `status`, `reason` ni `confirm_by`). La sombra dura sale de `--card-shadow`,
+ * que declara el contenedor de la rejilla (el tono anidado redefine `--pop-shadow-color`). El numeral
+ * es un contador de CSS decorativo. La pegatina es una escena mini de 96 x 80 del collage de marca
+ * (`sticker-<sticker>`, Loopy oficial o flecha, píldora con palabra y sombra dura), decorativa y aria-hidden.
+ * Sin hover, cursor, transform ni transición: no es interactiva.
+ */
+import CollageScene from '../collage/CollageScene.astro';
+
+interface Props {
+  sticker: 'clic' | 'lupa' | 'ojos';
+  text: string;
+}
+
+const { sticker, text } = Astro.props;
+---
+
+<li class="pain-card" data-tone="light">
+  <div class="pain-head">
+    <span class="pain-num" aria-hidden="true"></span>
+    <CollageScene scene={`sticker-${sticker}`} class="pain-sticker" />
+  </div>
+  <p class="pain-text">{text}</p>
+</li>
+
+<style>
+  .pain-card {
+    counter-increment: pain;
+    min-width: 0;
+    padding: var(--card-pad);
+    border: var(--border-pop);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    color: var(--on-surface);
+    box-shadow: 6px 6px 0 var(--card-shadow);
+  }
+
+  .pain-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .pain-head :global(.pain-sticker) {
+    flex: none;
+    width: 6rem;
+  }
+
+  .pain-num::before {
+    content: counter(pain, decimal-leading-zero);
+    font-size: var(--text-heading);
+    line-height: var(--text-heading--line-height);
+    font-weight: 700;
+    color: var(--heading);
+  }
+
+  .pain-text {
+    margin-top: 1rem;
+    font-size: var(--text-title);
+    line-height: var(--text-title--line-height);
+    font-weight: 600;
+    color: var(--on-surface);
+    overflow-wrap: anywhere;
+  }
+</style>

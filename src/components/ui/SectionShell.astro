@@ -1,0 +1,90 @@
+---
+/**
+ * Envoltorio de sección que reutilizan los planes 03 a 06. Trae el tono (`data-tone`), el
+ * `<h2>` con su barra decorativa (`.section-title`, en global.css), un lead opcional de
+ * 60ch, el cuerpo por slot y un slot `cta` separado 48 px. Con `split` y desde 64em, la cabecera
+ * (h2, lead y el slot `aside`) queda a la izquierda y el cuerpo a la derecha; sin `split` ni
+ * `aside` se comporta como siempre. Todo el color sale del tono:
+ * este componente no declara colores propios. El texto llega como prop y se imprime como
+ * nodo de texto (sin HTML en bruto).
+ */
+interface Props {
+  id: string;
+  tone: 'light' | 'yellow' | 'dark' | 'purple';
+  title: string;
+  lead?: string;
+  titleId?: string;
+  split?: boolean;
+}
+
+const { id, tone, title, lead, titleId = `${id}-title`, split = false } = Astro.props;
+const hasCta = Astro.slots.has('cta');
+const hasAside = Astro.slots.has('aside');
+---
+
+<section id={id} aria-labelledby={titleId} data-tone={tone} class:list={['section-shell', split && 'section-shell--split']}>
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id={titleId} class="section-title">{title}</h2>
+      {lead && <p class="section-lead">{lead}</p>}
+      {hasAside && <slot name="aside" />}
+    </div>
+    <div class="section-body"><slot /></div>
+    {hasCta && <div class="section-cta"><slot name="cta" /></div>}
+  </div>
+</section>
+
+<style>
+  .section-shell {
+    padding-block: var(--section-y);
+  }
+
+  .section-head,
+  .section-cta {
+    min-width: 0;
+  }
+
+  .section-lead {
+    max-width: 60ch;
+    margin-top: 1rem;
+    overflow-wrap: anywhere;
+  }
+
+  .section-body {
+    margin-top: 2rem;
+    min-width: 0;
+  }
+
+  .section-cta {
+    margin-top: 3rem;
+  }
+
+  @media (min-width: 40em) {
+    .section-body {
+      margin-top: 3rem;
+    }
+  }
+
+  /* Variante split: h2 y aside a la izquierda, cuerpo a la derecha, solo desde 64em. */
+  @media (min-width: 64em) {
+    .section-shell--split .wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      column-gap: 3rem;
+      align-items: start;
+    }
+
+    .section-shell--split .section-head {
+      grid-column: 1;
+    }
+
+    .section-shell--split .section-body {
+      grid-column: 2;
+      margin-top: 0;
+    }
+
+    .section-shell--split .section-cta {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

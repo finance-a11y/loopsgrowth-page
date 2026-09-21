@@ -1,0 +1,16 @@
+---
+/**
+ * Texto de una afirmación con los términos en inglés marcados (A11Y.md, WCAG 3.1.2): imprime la cadena
+ * tal cual, carácter por carácter, y envuelve cada término de `src/lib/english-terms.mjs` en
+ * `<span lang="en">`. Sin `set:html`: cada trozo es un nodo de texto que Astro escapa. Se usa dentro del
+ * elemento que ya existe (no añade contenedor ni espacios).
+ */
+import { splitEnglish } from '../../lib/english-terms.mjs';
+
+interface Props {
+  text: string;
+}
+
+const segments = splitEnglish(Astro.props.text);
+---
+{segments.map((segment) => (segment.en ? <span lang="en">{segment.text}</span> : segment.text))}

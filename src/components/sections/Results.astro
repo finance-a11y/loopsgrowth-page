@@ -1,0 +1,37 @@
+---
+/**
+ * Lo que logramos juntos (CONT-05). Tono dark. Imprime solo `.text` de cada afirmación, sin leer su estado
+ * (COPY-01): el cuerpo del resultado del rango de presupuesto muestra el relleno porque así se guardó, y el
+ * texto del doc con su marca de verificación vive solo en `reason`, que la página no imprime. Sin CTA: el
+ * de casos cubre este tramo.
+ */
+import SectionShell from '../ui/SectionShell.astro';
+import ResultItem from '../ui/ResultItem.astro';
+import { getLanding } from '../../lib/content';
+
+const data = await getLanding();
+---
+
+<SectionShell id="resultados" tone="dark" title={data.results.title.text}>
+  <ul role="list" class="results-grid">
+    {data.results.items.map((item) => <ResultItem lead={item.lead.text} body={item.body.text} />)}
+  </ul>
+</SectionShell>
+
+<style>
+  .results-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--card-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 40em) {
+    .results-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: stretch;
+    }
+  }
+</style>

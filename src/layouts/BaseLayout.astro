@@ -1,0 +1,54 @@
+---
+import '../styles/global.css';
+import { Font } from 'astro:assets';
+import SkipLinks from '../components/SkipLinks.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { isProduction, canonicalUrl } from '../lib/site';
+
+interface Props {
+  title: string;
+  /** `noindex` en todo entorno (también en producción) y sin canonical. */
+  noindex?: boolean;
+  /** Ruta de la página, para la URL canónica. Por defecto `/`. */
+  path?: string;
+}
+
+const { title, noindex = false, path = '/' } = Astro.props;
+const canonical = canonicalUrl(path);
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {(!isProduction || noindex) && <meta name="robots" content="noindex" />}
+    {isProduction && !noindex && canonical && <link rel="canonical" href={canonical} />}
+    <title>{title}</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <Font cssVariable="--font-brand" preload={[{ subset: "latin", style: "normal" }]} />
+  </head>
+  <body>
+    <SkipLinks />
+    <SiteHeader />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>
+
+<style>
+  /* Página corta (por ejemplo /privacidad): el footer llega al borde inferior de la ventana. */
+  :global(body) {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+
+  main {
+    flex: 1 0 auto;
+  }
+</style>

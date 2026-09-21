@@ -1,0 +1,50 @@
+---
+/**
+ * La solución (CONT-04). Tono light. Imprime solo `.text` de cada afirmación, sin leer su estado
+ * (COPY-01): el titular y el cuerpo del Pilar 4 muestran "FALTA CONFIRMAR" porque así se guardaron.
+ * El CTA `solucion` es el tercero de los cuatro del sitio y va 48 px bajo la rejilla de pilares.
+ */
+import SectionShell from '../ui/SectionShell.astro';
+import PillarCard from '../ui/PillarCard.astro';
+import CtaLink from '../CtaLink.astro';
+import { getLanding, ctaLabel } from '../../lib/content';
+
+const data = await getLanding();
+const label = ctaLabel(data);
+// Chips en el orden de los pilares: auditoría, estrategia, equipo dedicado y reportes.
+const CHIPS = ['lupa', 'ojos', 'loop', 'clic'] as const;
+---
+
+<SectionShell id="solucion" tone="light" title={data.solution.title.text} lead={data.solution.lead.text}>
+  <ul role="list" class="pillar-grid">
+    {
+      data.solution.items.map((item, i) => (
+        <PillarCard
+          chip={CHIPS[i]}
+          title={item.title.text}
+          body={item.body.text}
+          list={item.list?.map((member) => member.text)}
+        />
+      ))
+    }
+  </ul>
+  <CtaLink slot="cta" label={label} location="solucion" />
+</SectionShell>
+
+<style>
+  .pillar-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--card-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 40em) {
+    .pillar-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: stretch;
+    }
+  }
+</style>

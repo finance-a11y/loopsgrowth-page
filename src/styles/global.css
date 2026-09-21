@@ -1,0 +1,106 @@
+@import "tailwindcss";
+@import "./tokens.css";
+@import "./motion.css";
+
+@layer base {
+  html {
+    scroll-behavior: auto;
+  }
+
+  /* Scroll suave solo con preferencia explícita; bajo `reduce` el salto es inmediato. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background: var(--surface);
+    color: var(--on-surface);
+    font-family: var(--font-brand);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    font-weight: 400;
+  }
+
+  /* Un tono cambia superficie y tinta juntos. */
+  [data-tone] {
+    background: var(--surface);
+    color: var(--on-surface);
+  }
+
+  /* Contenedor estándar: 72rem, centrado, con gutter fluido. */
+  .wrap {
+    width: 100%;
+    max-width: var(--container);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  h1 {
+    max-width: 22ch;
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+    font-weight: 700;
+    color: var(--heading);
+    overflow-wrap: anywhere;
+  }
+
+  h2 {
+    font-size: var(--text-heading);
+    line-height: var(--text-heading--line-height);
+    font-weight: 700;
+    color: var(--heading);
+    overflow-wrap: anywhere;
+  }
+
+  /* Title: h3 de tarjetas. Tinta del tono, no morado: el morado queda para h1, h2 y cifras. */
+  h3 {
+    font-size: var(--text-title);
+    line-height: var(--text-title--line-height);
+    font-weight: 700;
+    color: var(--on-surface);
+    overflow-wrap: anywhere;
+  }
+
+  /* Barra decorativa de 48x8 px sobre el h2 (solo relleno; no lleva información). */
+  .section-title::before {
+    content: "";
+    display: block;
+    width: 3rem;
+    aspect-ratio: 6 / 1;
+    margin-bottom: 1rem;
+    border-radius: var(--radius-pill);
+    background: var(--bar);
+  }
+
+  /* Un salto a #agenda u otra sección no deja el título pegado al borde. */
+  section[id] {
+    scroll-margin-top: 1.5rem;
+  }
+
+  p {
+    max-width: 65ch;
+    text-align: start;
+  }
+
+  /* El estado de un enlace de texto no depende solo del color: subrayado permanente. */
+  a {
+    color: var(--link);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+
+  /* Foco global de 3 px con contraste 3:1 por tono; nunca se anula. */
+  :focus-visible {
+    outline: var(--focus-width) solid var(--focus-ring);
+    outline-offset: var(--focus-offset);
+  }
+
+  /* Superficies del navegador con la paleta: selección de texto legible en ambos tonos. */
+  ::selection {
+    background: var(--color-brand-yellow);
+    color: var(--color-brand-dark);
+  }
+}

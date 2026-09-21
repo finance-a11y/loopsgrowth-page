@@ -1,0 +1,82 @@
+---
+/**
+ * Resultado de "Lo que logramos juntos" (CONT-05): borde amarillo de 3 px sobre el tono `dark`, disco de check
+ * amarillo con la marca oscura y, al lado, el lead en Title 600 y el cuerpo en Body 400. Imprime solo las dos
+ * cadenas recibidas como nodos de texto (nunca `status`, `reason` ni `confirm_by`). El disco se dibuja en
+ * línea porque el sprite del collage no trae un símbolo de check. Sin fondo, sombra, hover, cursor ni
+ * transición: el resultado no es interactivo.
+ */
+interface Props {
+  lead: string;
+  body: string;
+}
+
+const { lead, body } = Astro.props;
+---
+
+<li class="result-item">
+  <svg class="result-check" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+    <circle class="result-disc" cx="16" cy="16" r="16"></circle>
+    <path class="result-tick" d="M9 16.5l5 5 9-10.5"></path>
+  </svg>
+  <div class="result-text">
+    <p class="result-lead">{lead}</p>
+    <p class="result-body">{body}</p>
+  </div>
+</li>
+
+<style>
+  .result-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    min-width: 0;
+    margin: 0;
+    padding: var(--card-pad);
+    border: 3px solid var(--color-brand-yellow);
+    border-radius: var(--radius-card);
+    background: transparent;
+    color: var(--on-surface);
+    list-style: none;
+    overflow-wrap: anywhere;
+  }
+
+  .result-check {
+    flex: none;
+    inline-size: 2rem;
+    aspect-ratio: 1;
+    overflow: visible;
+  }
+
+  .result-disc {
+    fill: var(--color-brand-yellow);
+  }
+
+  .result-tick {
+    fill: none;
+    stroke: var(--color-brand-dark);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .result-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .result-lead {
+    font-size: var(--text-title);
+    line-height: var(--text-title--line-height);
+    font-weight: 600;
+    color: var(--on-surface);
+  }
+
+  .result-body {
+    margin-top: 0.5rem;
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    font-weight: 400;
+    color: var(--on-surface);
+  }
+</style>

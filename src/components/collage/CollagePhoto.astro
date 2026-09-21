@@ -1,0 +1,65 @@
+---
+/**
+ * Marco de foto del collage (plan 02-11). Un `div` HTML que ocupa exactamente la caja de la ranura de la
+ * escena, entre la capa svg y las píldoras, con una sola `img` decorativa (alt vacío, la raíz del collage
+ * es aria-hidden). La foto es una media tinta binaria en PNG con paleta: el relleno de papel lo pone el
+ * marco con el token de la ranura. No es un grupo de animación: en el hero declara `data-piece-of="panel"`
+ * con las mismas variables del panel para que 02-07 lo anime junto a él, sin transform propio.
+ */
+import { Image } from 'astro:assets';
+import { PHOTO_LOADING, assertPhotoForSlot } from './photos.mjs';
+import { fillVar } from './collage-rules.mjs';
+
+interface Props {
+  photo: string;
+  frame: any;
+  group?: string;
+}
+
+const { photo, frame, group } = Astro.props;
+assertPhotoForSlot(photo, frame.slot);
+
+const assets = import.meta.glob('../../assets/photos/treated/*.png', { eager: true, import: 'default' }) as Record<string, ImageMetadata>;
+const src = assets[`../../assets/photos/treated/${photo}.png`];
+if (!src) {
+  const ids = Object.keys(assets).map((k) => k.split('/').pop()!.replace('.png', ''));
+  throw new Error(`No existe la foto tratada "${photo}" (ids disponibles: ${ids.join(', ')}).`);
+}
+
+const n = (v: number) => Number(v.toFixed(2));
+const { pct } = frame;
+const style = [
+  `left:${n(pct.left)}%`,
+  `top:${n(pct.top)}%`,
+  `width:${n(pct.width)}%`,
+  `height:${n(pct.height)}%`,
+  `--pf-fill:${fillVar(frame.fill)}`,
+  `--pf-radius:${n((frame.rx / frame.w) * 100)}% / ${n((frame.rx / frame.h) * 100)}%`,
+  `--pf-dx:${n((frame.shadow.dx / frame.sceneW) * 100)}cqw`,
+  `--pf-dy:${n((frame.shadow.dy / frame.sceneW) * 100)}cqw`,
+  group,
+]
+  .filter(Boolean)
+  .join(';');
+---
+
+<div class="collage-photo" data-photo-frame={frame.slot} data-photo-id={photo} data-trait="photo" data-piece-of={group ? 'panel' : undefined} style={style}>
+  <Image src={src} alt="" format="png" quality={80} loading={PHOTO_LOADING[frame.slot as 'hero' | 'whynow']} decoding="async" />
+</div>
+
+<style>
+  .collage-photo {
+    position: absolute;
+    background: var(--pf-fill);
+    border-radius: var(--pf-radius);
+    box-shadow: var(--pf-dx) var(--pf-dy) 0 var(--pop-shadow-color);
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .collage-photo :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>

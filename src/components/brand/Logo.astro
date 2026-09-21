@@ -1,0 +1,152 @@
+---
+/**
+ * Logo de Loops Growth como SVG en línea. Cada SVG de `src/assets/brand` es una mesa oficial del
+ * vectorial de Ari (el catálogo de las 32 mesas vive en `logo-variants.mjs`) y trae sus colores
+ * dentro: aquí no hay hex ni regla de relleno. No se recolorea nada por CSS. Para cada variante
+ * y tono, `resolveLogo` devuelve la mesa oficial del fondo correspondiente o lanza un error en
+ * español si no existe (el horizontal y el imagotipo solo existen sobre claro; el emblema no tiene
+ * versión sobre oscuro; sobre oscuro y morado el logo de marca es el apilado).
+ *
+ * El contenedor no lleva el atributo de tono de la página: ese atributo activa los bloques de
+ * tono y el fondo global. El tono del logo se emite como `data-logo-tone`, y quien lo usa debe
+ * pasar el mismo valor que el tono de su superficie (el header lo hace con una constante).
+ *
+ * `--logo-clear` es el área de salvado del BrandBook (página 7): un margen X en los cuatro lados.
+ * X es el alto efectivo del logo o isotipo; en el apilado, cuyo arte mide 2 X, es la mitad del
+ * alto. Es una zona de exclusión, no un relleno visible: ningún elemento de contenido debe entrar
+ * en ese rectángulo ensanchado.
+ *
+ * Alturas mínimas con `max()` según la variante (32 px horizontal e imagotipo, 48 apilado,
+ * 96 emblema, 24 isotipo y ojo), aunque un consumidor cambie `--logo-h`.
+ *
+ * Accesibilidad: `role="img"` con nombre accesible igual a `name` (viene de `brand.name.text`);
+ * nunca se oculta a las tecnologías de apoyo. Con `href` el SVG va dentro de un enlace (el nombre
+ * del enlace es el del logo); sin `href` no hay enlace (en `/` el logo no es un destino). Las
+ * mesas 17 y 22 (isotipo y ojo sobre oscuro) llevan la excepción de marca escrita en el catálogo.
+ */
+import Apilado01 from '../../assets/brand/apilado-01-blanco.svg';
+import Apilado03 from '../../assets/brand/apilado-03-morado.svg';
+import Apilado05 from '../../assets/brand/apilado-05-amarillo.svg';
+import Apilado08 from '../../assets/brand/apilado-08-oscuro.svg';
+import Horizontal06 from '../../assets/brand/horizontal-06-blanco.svg';
+import Imagotipo07 from '../../assets/brand/imagotipo-07-blanco.svg';
+import Emblema10 from '../../assets/brand/emblema-10-blanco.svg';
+import Emblema12 from '../../assets/brand/emblema-12-morado.svg';
+import Emblema24 from '../../assets/brand/emblema-24-amarillo.svg';
+import Isotipo13 from '../../assets/brand/isotipo-13-blanco.svg';
+import Isotipo14 from '../../assets/brand/isotipo-14-morado.svg';
+import Isotipo16 from '../../assets/brand/isotipo-16-amarillo.svg';
+import Isotipo17 from '../../assets/brand/isotipo-17-oscuro.svg';
+import Ojo18 from '../../assets/brand/ojo-18-blanco.svg';
+import Ojo19 from '../../assets/brand/ojo-19-morado.svg';
+import Ojo21 from '../../assets/brand/ojo-21-amarillo.svg';
+import Ojo22 from '../../assets/brand/ojo-22-oscuro.svg';
+import { resolveLogo } from './logo-variants.mjs';
+
+interface Props {
+  name: string;
+  href?: string;
+  variant?: 'apilado' | 'horizontal' | 'imagotipo' | 'emblema' | 'isotipo' | 'ojo';
+  tone?: 'light' | 'yellow' | 'dark' | 'purple';
+  class?: string;
+}
+
+const MARKS = {
+  'apilado-01-blanco': Apilado01,
+  'apilado-03-morado': Apilado03,
+  'apilado-05-amarillo': Apilado05,
+  'apilado-08-oscuro': Apilado08,
+  'horizontal-06-blanco': Horizontal06,
+  'imagotipo-07-blanco': Imagotipo07,
+  'emblema-10-blanco': Emblema10,
+  'emblema-12-morado': Emblema12,
+  'emblema-24-amarillo': Emblema24,
+  'isotipo-13-blanco': Isotipo13,
+  'isotipo-14-morado': Isotipo14,
+  'isotipo-16-amarillo': Isotipo16,
+  'isotipo-17-oscuro': Isotipo17,
+  'ojo-18-blanco': Ojo18,
+  'ojo-19-morado': Ojo19,
+  'ojo-21-amarillo': Ojo21,
+  'ojo-22-oscuro': Ojo22,
+} as const;
+
+const { name, href, variant = 'horizontal', tone = 'light', class: className } = Astro.props;
+const board = resolveLogo(variant, tone);
+const Mark = MARKS[board.file as keyof typeof MARKS];
+const artboard = String(board.n).padStart(2, '0');
+---
+
+<span class:list={['brand-logo', className]} data-variant={variant} data-logo-tone={tone} data-artboard={artboard}>
+  {
+    href ? (
+      <a class="brand-logo__link" href={href}>
+        <Mark role="img" aria-label={name} focusable="false" />
+      </a>
+    ) : (
+      <Mark role="img" aria-label={name} focusable="false" />
+    )
+  }
+</span>
+
+<style>
+  .brand-logo {
+    --logo-min: 32px;
+    --logo-h: 2rem;
+    --logo-clear: max(var(--logo-h), var(--logo-min));
+    display: inline-flex;
+    align-items: center;
+    line-height: 0;
+  }
+
+  .brand-logo[data-variant='imagotipo'] {
+    --logo-min: 32px;
+    --logo-h: 2rem;
+  }
+
+  .brand-logo[data-variant='apilado'] {
+    --logo-min: 48px;
+    --logo-h: 4rem;
+    /* El arte apilado mide 2 X (BrandBook, página 7): la X es la mitad de su alto. */
+    --logo-clear: calc(max(var(--logo-h), var(--logo-min)) / 2);
+  }
+
+  .brand-logo[data-variant='emblema'] {
+    --logo-min: 96px;
+    --logo-h: 7.5rem;
+  }
+
+  .brand-logo[data-variant='isotipo'],
+  .brand-logo[data-variant='ojo'] {
+    --logo-min: 24px;
+    --logo-h: 2.5rem;
+  }
+
+  /* Desde 640 px el header ya mide lo que el CTA (44 px), así que el logo horizontal y el
+     imagotipo crecen a 40 px sin mover la altura del header; en móvil se quedan en 32 px. */
+  @media (min-width: 40em) {
+    .brand-logo[data-variant='horizontal'],
+    .brand-logo[data-variant='imagotipo'] {
+      --logo-h: 2.5rem;
+    }
+  }
+
+  .brand-logo__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+    border-radius: 0.25rem;
+  }
+
+  .brand-logo__link:focus-visible {
+    outline: var(--focus-width) solid var(--focus-ring);
+    outline-offset: var(--focus-offset);
+  }
+
+  .brand-logo :global(svg) {
+    display: block;
+    height: max(var(--logo-h), var(--logo-min));
+    width: auto;
+    max-width: 100%;
+  }
+</style>

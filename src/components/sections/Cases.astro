@@ -1,0 +1,77 @@
+---
+/**
+ * Casos de éxito (CONT-06). Tono light. Imprime solo `.text` de cada afirmación, sin leer su estado (COPY-01):
+ * donde el doc no da el dato, el YAML trae "FALTA CONFIRMAR" y eso es lo que se muestra. La quinta tarjeta (la
+ * de Meta Ads) es la ancha y lleva la única lupa. El CTA `casos` es el cuarto de los del sitio y va 48 px bajo la rejilla.
+ */
+import SectionShell from '../ui/SectionShell.astro';
+import MetricCard from '../ui/MetricCard.astro';
+import CtaLink from '../CtaLink.astro';
+import { getLanding, ctaLabel } from '../../lib/content';
+
+const data = await getLanding();
+const label = ctaLabel(data);
+const { labels } = data.cases;
+const cardLabels = { sector: labels.sector.text, period: labels.period.text, channel: labels.channel.text };
+// La tarjeta ancha se decide por posición: la quinta del doc es la de Meta Ads.
+const WIDE_INDEX = 4;
+---
+
+<SectionShell id="casos" tone="light" title={data.cases.title.text}>
+  <ul role="list" class="cases-grid">
+    {
+      data.cases.items.map((item, i) => (
+        <li class="case-item" data-wide={i === WIDE_INDEX ? '' : undefined}>
+          <MetricCard
+            id={`caso-${i + 1}-title`}
+            figure={item.figure.text}
+            metric={item.metric.text}
+            detail={item.detail?.text}
+            sector={item.sector.text}
+            period={item.period.text}
+            channel={item.channel.text}
+            labels={cardLabels}
+            wide={i === WIDE_INDEX}
+          />
+        </li>
+      ))
+    }
+  </ul>
+  <CtaLink slot="cta" label={label} location="casos" />
+</SectionShell>
+
+<style>
+  .cases-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--card-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .case-item {
+    display: flex;
+    min-width: 0;
+  }
+
+  @media (min-width: 40em) {
+    .cases-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .case-item[data-wide] {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 64em) {
+    .cases-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .case-item[data-wide] {
+      grid-column: span 2;
+    }
+  }
+</style>

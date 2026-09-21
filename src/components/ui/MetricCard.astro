@@ -1,0 +1,208 @@
+---
+/**
+ * Tarjeta de caso de éxito (CONT-06). Un artículo cuyo encabezado es la frase completa del doc: la cifra en
+ * Display morado con marcador amarillo plano y la métrica en Title, separadas por un espacio explícito. Trae el
+ * chip de canal, la línea de detalle si el caso la tiene y un `dl` con Sector, Plazo y Canal. Imprime solo las
+ * cadenas recibidas como nodos de texto (nunca `status`, `reason` ni `confirm_by`). Sin hover, cursor,
+ * transición ni enfocables: la tarjeta no es interactiva. La variante `wide` suma la lupa oficial, decorativa
+ * y sin colores propios, en la fila del chip.
+ */
+import CollagePiece from '../collage/CollagePiece.astro';
+import LangText from './LangText.astro';
+
+interface Props {
+  id: string;
+  figure: string;
+  metric: string;
+  detail?: string;
+  sector: string;
+  period: string;
+  channel: string;
+  labels: { sector: string; period: string; channel: string };
+  wide?: boolean;
+}
+
+const { id, figure, metric, detail, sector, period, channel, labels, wide = false } = Astro.props;
+---
+
+<article class="metric-card" aria-labelledby={id} data-wide={wide ? '' : undefined}>
+  <p class="metric-chip"><LangText text={channel} /></p>
+  <h3 id={id} class="metric-head">
+    <span class="metric-figure"><span class="metric-mark">{figure}</span></span>{' '}
+    <span class="metric-name"><LangText text={metric} /></span>
+  </h3>
+  {detail && <p class="metric-detail"><LangText text={detail} /></p>}
+  <dl class="metric-facts">
+    <div>
+      <dt>{labels.sector}</dt>
+      <dd><LangText text={sector} /></dd>
+    </div>
+    <div>
+      <dt>{labels.period}</dt>
+      <dd>{period}</dd>
+    </div>
+    <div>
+      <dt>{labels.channel}</dt>
+      <dd><LangText text={channel} /></dd>
+    </div>
+  </dl>
+  {wide && <CollagePiece class="metric-lupa" name="lupa" tone="light" size="6rem" rotate={6} />}
+</article>
+
+<style>
+  .metric-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;
+    min-width: 0;
+    padding: var(--card-pad);
+    border: var(--border-pop);
+    border-radius: var(--radius-card);
+    background: var(--color-brand-white);
+    color: var(--on-surface);
+    box-shadow: var(--shadow-pop);
+    overflow-wrap: anywhere;
+  }
+
+  .metric-chip {
+    align-self: flex-start;
+    min-height: 2rem;
+    max-width: 100%;
+    padding: 0.25rem 0.75rem;
+    border: 3px solid var(--color-brand-dark);
+    border-radius: var(--radius-pill);
+    background: var(--color-brand-cream);
+    color: var(--color-brand-dark);
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .metric-head {
+    font-size: var(--text-title);
+    line-height: var(--text-title--line-height);
+    font-weight: 700;
+    color: var(--on-surface);
+  }
+
+  .metric-figure {
+    display: block;
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+    font-weight: 700;
+    color: var(--heading);
+    overflow-wrap: anywhere;
+  }
+
+  /* Marcador plano detrás del tercio inferior de la cifra: una sola tonalidad, sin desenfoque. */
+  .metric-mark {
+    background: linear-gradient(var(--mark), var(--mark)) no-repeat 0 88% / 100% 34%;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  .metric-name {
+    display: block;
+    font-size: var(--text-title);
+    line-height: var(--text-title--line-height);
+    font-weight: 700;
+    color: var(--on-surface);
+  }
+
+  .metric-detail {
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    font-weight: 400;
+    color: var(--on-surface);
+  }
+
+  .metric-facts {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+  }
+
+  .metric-facts > div {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 0.75rem;
+    align-items: baseline;
+  }
+
+  .metric-facts dt {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    font-weight: 600;
+    color: var(--on-surface);
+  }
+
+  .metric-facts dd {
+    min-width: 0;
+    margin: 0;
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    font-weight: 400;
+    color: var(--on-surface);
+    overflow-wrap: anywhere;
+  }
+
+  /* Variante ancha: la lupa comparte la fila del chip, a la derecha, así nunca cruza la cifra ni los datos.
+     El chip se centra frente a la lupa (fila de cabecera) y no se estira a todo el ancho de la columna. */
+  .metric-card[data-wide] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-content: start;
+    gap: 1rem;
+  }
+
+  .metric-card[data-wide] > * {
+    grid-column: 1 / -1;
+  }
+
+  .metric-card[data-wide] > .metric-chip {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    align-self: center;
+  }
+
+  .metric-card[data-wide] > .metric-head {
+    position: relative;
+    z-index: 1;
+  }
+
+  .metric-card[data-wide] :global(.metric-lupa) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    align-self: center;
+  }
+
+  @media (min-width: 40em) {
+    /* Cabecera arriba (chip y lupa); cifra y datos anclados abajo, sin hueco bajo el chip cuando la tarjeta se estira. */
+    .metric-card[data-wide] {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      grid-template-rows: auto auto 1fr;
+      column-gap: 2rem;
+    }
+
+    .metric-card[data-wide] > .metric-head {
+      grid-column: 1;
+      grid-row: 2 / span 2;
+      align-self: end;
+    }
+
+    .metric-card[data-wide] > .metric-detail {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .metric-card[data-wide] > .metric-facts {
+      grid-column: 2;
+      grid-row: 3;
+      align-self: end;
+    }
+  }
+</style>

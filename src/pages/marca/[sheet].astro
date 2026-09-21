@@ -1,0 +1,551 @@
+---
+/**
+ * Hoja de revisión visual de la marca (herramienta interna, no es copy de la landing).
+ * Existe solo fuera de producción: con PUBLIC_ENV=production `getStaticPaths` devuelve una lista
+ * vacía y no se genera `/marca/hoja/`. Lleva `noindex` por BaseLayout. Los rótulos son ids de
+ * pieza en elementos `code`, nunca frases. Sirve para que Juan y Ari aprueben las 17 mesas oficiales
+ * del logo por tono, la paleta, el favicon y el collage de marca (piezas, píldoras, composiciones y
+ * avatares) a varios anchos. Cada demo lleva `data-demo` para las capturas del ciclo visual.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Logo from '../../components/brand/Logo.astro';
+import CollagePiece from '../../components/collage/CollagePiece.astro';
+import CollageScene from '../../components/collage/CollageScene.astro';
+import AgendaCollage from '../../components/collage/AgendaCollage.astro';
+import Avatar from '../../components/collage/Avatar.astro';
+import Pill from '../../components/collage/Pill.astro';
+import { CHIP_WORDS } from '../../components/collage/collage-rules.mjs';
+import { ARTBOARDS, LOGO_TONES, LOGO_VARIANTS } from '../../components/brand/logo-variants.mjs';
+import { parseTokens } from '../../../scripts/lib/contrast.mjs';
+import { readFileSync } from 'node:fs';
+import { PHOTOS, PHOTO_SLOT_NAMES } from '../../components/collage/photos.mjs';
+import { parseLicenses } from '../../../scripts/lib/photo-licenses.mjs';
+import { isProduction } from '../../lib/site';
+import { getLanding } from '../../lib/content';
+
+export function getStaticPaths() {
+  return isProduction ? [] : [{ params: { sheet: 'hoja' } }];
+}
+
+const data = await getLanding();
+const name = data.brand.name.text;
+// Mesas oficiales usadas, por tono, en el orden de las variantes (apilado, horizontal, ...).
+const BOARDS_BY_TONE = LOGO_TONES.map((tone) => ({
+  tone,
+  boards: ARTBOARDS.filter((b) => b.use && b.tone === tone).sort(
+    (a, b) => LOGO_VARIANTS.indexOf(a.variant) - LOGO_VARIANTS.indexOf(b.variant),
+  ),
+}));
+// Paleta: los hex se leen de tokens.css, así la página no lleva ningún valor escrito.
+const { theme } = parseTokens(readFileSync('src/styles/tokens.css', 'utf8'));
+const SWATCHES = ['purple', 'cream', 'orange', 'yellow', 'dark', 'white'].map((swatch) => ({
+  swatch,
+  token: `--color-brand-${swatch}`,
+  hex: theme[`--color-brand-${swatch}`],
+}));
+// Hoja de elección de fotos: cada candidata del manifiesto en su escena completa, con el estado de su fila.
+const PHOTO_ROWS = parseLicenses(readFileSync('src/assets/photos/LICENSES.md', 'utf8'));
+const PHOTO_BANDS = [
+  { slot: 'hero', tone: 'light', scene: 'hero', cls: 'sheet-photo-hero' },
+  { slot: 'whynow', tone: 'yellow', scene: 'whynow', cls: 'sheet-photo-whynow' },
+].filter((b) => PHOTO_SLOT_NAMES.includes(b.slot));
+const photoState = (id: string) => {
+  const row = PHOTO_ROWS.find((r) => r.id === id);
+  return !row ? 'sin fila' : row.approval.startsWith('aprobada') ? 'aprobada' : 'pendiente';
+};
+const FAVICON_SIZES = [16, 32, 48] as const;
+const FAVICON_SAMPLES = [
+  { tone: 'light', label: 'claro' },
+  { tone: 'dark', label: 'oscuro' },
+] as const;
+// Piezas sueltas por tono: dark no muestra a Loopy (no va directo sobre oscuro), solo garabatos y retícula.
+const PIECE_TONES = ['light', 'yellow', 'purple', 'dark'] as const;
+const PIECE_NAMES = ['ojos', 'lupa', 'flecha', 'destello', 'asterisco', 'mas', 'garabato', 'puntos'] as const;
+const PIECE_SIZES: Record<string, string> = {
+  ojos: '9rem',
+  lupa: '7rem',
+  flecha: '5rem',
+  destello: '3rem',
+  asterisco: '3rem',
+  mas: '2.5rem',
+  garabato: '6rem',
+  puntos: '6rem',
+};
+// Píldoras: cada palabra con cada estilo (fondo, texto) que `assertPill` acepta por tono del fondo.
+// Todas miden 4.5 o más con la calculadora del repo; `Pill` lo comprueba de nuevo al construir.
+const PILL_TONES = ['light', 'yellow', 'dark', 'purple'] as const;
+const PILL_STYLES = {
+  light: [['purple', 'cream'], ['yellow', 'dark'], ['cream', 'purple'], ['orange', 'dark'], ['dark', 'yellow']],
+  yellow: [['dark', 'yellow'], ['purple', 'cream'], ['purple', 'white'], ['white', 'purple']],
+  dark: [['yellow', 'dark'], ['cream', 'purple'], ['white', 'purple'], ['orange', 'dark']],
+  purple: [['yellow', 'dark'], ['cream', 'purple'], ['white', 'purple']],
+} as const;
+// Marco de 12rem por 4rem = escena de 192 x 64 unidades: fs 30 para la píldora y fs 20 para la tarjeta (team work).
+const PILL_FRAME = { w: 192, h: 64 };
+const pillLayout = (word: string) =>
+  word === 'team work'
+    ? { shape: 'card' as const, fs: 20, y: (PILL_FRAME.h - 20 * 2.9) / 2 }
+    : { shape: 'pill' as const, fs: 30, y: (PILL_FRAME.h - 30 * 1.64) / 2 };
+const STICKERS = ['clic', 'lupa', 'ojos'] as const;
+const CHIPS = ['lupa', 'ojos', 'loop', 'clic'] as const;
+const AVATARS = ['ojo-morado', 'ojo-amarillo', 'ojos-morado', 'ojos-amarillo'] as const;
+---
+
+<BaseLayout title="hoja de marca">
+  <div class="sheet">
+    <div class="wrap">
+      <h1><code>marca/hoja</code></h1>
+    </div>
+
+    {
+      BOARDS_BY_TONE.map(({ tone, boards }) => (
+        <section class="sheet-band" data-tone={tone} data-sheet="identidad" aria-labelledby={`sheet-id-${tone}`}>
+          <div class="wrap">
+            <h2 id={`sheet-id-${tone}`}>
+              <code>identidad / {tone}</code>
+            </h2>
+            <ul class="sheet-logos">
+              {boards.map((board) => (
+                <li>
+                  <Logo class="sheet-zone" name={name} variant={board.variant} tone={tone} />
+                  <code>
+                    {board.variant} / mesa {String(board.n).padStart(2, '0')}
+                  </code>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ))
+    }
+
+    <section class="sheet-band" data-tone="light" data-sheet="favicon" aria-labelledby="sheet-favicon">
+      <div class="wrap">
+        <h2 id="sheet-favicon"><code>favicon / mesa 18</code></h2>
+        <div class="sheet-favicon">
+          {
+            FAVICON_SAMPLES.map(({ tone, label }) => (
+              <div class="sheet-favicon-sample" data-tone={tone} data-favicon-sample={tone}>
+                <ul>
+                  {FAVICON_SIZES.map((size) => (
+                    <li>
+                      <img src="/favicon.svg" width={size} height={size} alt={`favicon a ${size} px sobre fondo ${label}`} />
+                      <code>{size} px</code>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="sheet-band" data-tone="light" data-sheet="paleta" aria-labelledby="sheet-palette">
+      <div class="wrap">
+        <h2 id="sheet-palette"><code>paleta</code></h2>
+        <ul class="sheet-swatches">
+          {
+            SWATCHES.map(({ swatch, token, hex }) => (
+              <li data-swatch={swatch}>
+                <span class="swatch-chip" style={`--swatch: var(${token})`} aria-hidden="true" />
+                <code>{token}</code>
+                <code data-swatch-hex>{hex}</code>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    {
+      PIECE_TONES.map((tone) => (
+        <section class="sheet-band" data-tone={tone} data-sheet="piezas" aria-labelledby={`sheet-pieces-${tone}`}>
+          <div class="wrap">
+            <h2 id={`sheet-pieces-${tone}`}>
+              <code>piezas / {tone}</code>
+            </h2>
+            <ul class="sheet-pieces">
+              {PIECE_NAMES.filter((piece) => tone !== 'dark' || (piece !== 'ojos' && piece !== 'lupa')).map((piece) => (
+                <li data-demo={`${piece}-${tone}`}>
+                  <CollagePiece name={piece} tone={tone} size={PIECE_SIZES[piece]} />
+                  <code>{piece}</code>
+                </li>
+              ))}
+              {tone === 'dark' && (
+                <li>
+                  <code>ojos y lupa no van directo sobre dark</code>
+                </li>
+              )}
+            </ul>
+          </div>
+        </section>
+      ))
+    }
+
+    {
+      PILL_TONES.map((tone) => (
+        <section class="sheet-band" data-tone={tone} data-sheet="pildoras" data-demo={`pildoras-${tone}`} aria-labelledby={`sheet-pills-${tone}`}>
+          <div class="wrap">
+            <h2 id={`sheet-pills-${tone}`}>
+              <code>pildoras / {tone}</code>
+            </h2>
+            <ul class="sheet-pills">
+              {CHIP_WORDS.flatMap(({ word }) =>
+                PILL_STYLES[tone].map(([bg, fg]) => {
+                  const { shape, fs, y } = pillLayout(word);
+                  return (
+                    <li>
+                      <div class="sheet-pill-frame" data-pill-frame>
+                        <Pill word={word} tone={tone} bg={bg} fg={fg} x={8} y={y} anchor="left" fs={fs} shape={shape} sceneW={PILL_FRAME.w} sceneH={PILL_FRAME.h} where={`hoja/${tone}`} />
+                      </div>
+                      <code>
+                        {word} / {bg} / {fg}
+                      </code>
+                    </li>
+                  );
+                }),
+              )}
+            </ul>
+          </div>
+        </section>
+      ))
+    }
+
+    <section class="sheet-band" data-tone="light" data-sheet="composiciones" aria-labelledby="sheet-comp-hero">
+      <div class="wrap">
+        <h2 id="sheet-comp-hero"><code>hero / light</code></h2>
+        <div class="sheet-demo sheet-demo-hero" data-demo="hero">
+          <CollageScene scene="hero" class="hero-collage" />
+        </div>
+      </div>
+    </section>
+
+    <section class="sheet-band" data-tone="yellow" data-sheet="composiciones" aria-labelledby="sheet-comp-whynow">
+      <div class="wrap">
+        <h2 id="sheet-comp-whynow"><code>whynow / yellow</code></h2>
+        <div class="sheet-demo sheet-demo-whynow" data-demo="whynow">
+          <CollageScene scene="whynow" />
+        </div>
+      </div>
+    </section>
+
+    <section class="sheet-band" data-tone="purple" data-sheet="composiciones" aria-labelledby="sheet-comp-agenda">
+      <div class="wrap">
+        <h2 id="sheet-comp-agenda"><code>agenda / purple</code></h2>
+        <div class="sheet-demo sheet-demo-agenda" data-demo="agenda">
+          <AgendaCollage />
+        </div>
+      </div>
+    </section>
+
+    <section class="sheet-band" data-tone="light" data-sheet="composiciones" aria-labelledby="sheet-comp-cards">
+      <div class="wrap">
+        <h2 id="sheet-comp-cards"><code>pegatinas y chips / light</code></h2>
+        <div class="sheet-card">
+          <ul class="sheet-minis">
+            {
+              STICKERS.map((sticker) => (
+                <li data-demo={`sticker-${sticker}`}>
+                  <CollageScene scene={`sticker-${sticker}`} class="sheet-mini" />
+                  <code>sticker-{sticker}</code>
+                </li>
+              ))
+            }
+            {
+              CHIPS.map((chip) => (
+                <li data-demo={`chip-${chip}`}>
+                  <CollageScene scene={`chip-${chip}`} class="sheet-mini" />
+                  <code>chip-{chip}</code>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="sheet-band" data-tone="yellow" data-sheet="avatares" aria-labelledby="sheet-avatars">
+      <div class="wrap">
+        <h2 id="sheet-avatars"><code>avatares / yellow</code></h2>
+        <div class="sheet-card">
+          <ul class="sheet-avatars">
+            {
+              AVATARS.map((variant) => (
+                <li data-demo={`avatar-${variant}`}>
+                  <Avatar variant={variant} />
+                  <code>{variant}</code>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    {
+      PHOTO_BANDS.map(({ slot, tone, scene, cls }) => (
+        <section class="sheet-band" data-tone={tone} data-sheet="fotos" data-photo-slot-sheet={slot} aria-labelledby={`sheet-photos-${slot}`}>
+          <div class="wrap">
+            <h2 id={`sheet-photos-${slot}`}>
+              <code>
+                fotos {slot} / {tone}
+              </code>
+            </h2>
+            <ul class={`sheet-photos ${cls}`}>
+              {PHOTOS.filter((p) => p.slot === slot).map((p) => (
+                <li data-demo={`foto-${p.id}`} data-chosen={p.chosen ? 'true' : 'false'}>
+                  <CollageScene scene={scene} photo={p.id} />
+                  <code>
+                    {p.id} / {photoState(p.id)}
+                  </code>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ))
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .sheet {
+    padding-block: 2rem;
+  }
+
+  .sheet-band {
+    margin-top: 2rem;
+    padding-block: 2rem;
+  }
+
+  .sheet-logos {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1.5rem;
+  }
+
+  .sheet-logos li {
+    min-width: 0;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .sheet-favicon {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .sheet-favicon-sample {
+    min-width: 0;
+    padding: 1rem 1.5rem;
+    border: 3px solid var(--color-brand-dark);
+    border-radius: var(--radius-card, 1rem);
+    background: var(--surface);
+    color: var(--on-surface);
+  }
+
+  .sheet-favicon-sample ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1.5rem;
+  }
+
+  .sheet-favicon-sample li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sheet-swatches {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 9rem), 1fr));
+    gap: 1.5rem;
+  }
+
+  .sheet-swatches li {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .swatch-chip {
+    display: block;
+    min-height: 4.5rem;
+    background: var(--swatch);
+    border: 3px solid var(--color-brand-dark);
+    border-radius: var(--radius-card, 1rem);
+  }
+
+  .sheet-pieces {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr));
+    gap: 1.5rem;
+  }
+
+  .sheet-pieces li {
+    min-width: 0;
+    min-height: 8rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .sheet-pills {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
+    gap: 1rem 1.5rem;
+  }
+
+  .sheet-pills li {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .sheet-pill-frame {
+    position: relative;
+    width: min(100%, 12rem);
+    height: 4rem;
+    container-type: inline-size;
+  }
+
+  .sheet-demo {
+    margin-top: 1rem;
+    width: 100%;
+  }
+
+  .sheet-demo-hero {
+    max-width: 30rem;
+  }
+
+  .sheet-demo-whynow {
+    max-width: 20rem;
+  }
+
+  .sheet-demo-agenda {
+    max-width: 30rem;
+  }
+
+  .sheet-photos {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+
+  .sheet-photos li {
+    display: grid;
+    gap: 0.5rem;
+    width: min(100%, 30rem);
+    min-width: 0;
+  }
+
+  .sheet-photo-whynow li {
+    width: min(100%, 20rem);
+  }
+
+  @media (max-width: 40em) {
+    .sheet-photos {
+      flex-direction: column;
+    }
+  }
+
+  .sheet-minis {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .sheet-minis li {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .sheet :global(.sheet-mini) {
+    width: 6rem;
+  }
+
+  .sheet-card {
+    margin-top: 1rem;
+    padding: 1.5rem;
+    background: var(--color-brand-white);
+    color: var(--color-brand-dark);
+    border: 3px solid var(--color-brand-dark);
+    border-radius: var(--radius-card, 1rem);
+    box-shadow: 4px 4px 0 var(--color-brand-dark);
+  }
+
+  .sheet-avatars {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.5rem), 1fr));
+    gap: 1.5rem;
+  }
+
+  .sheet-avatars li {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sheet code {
+    font-size: 0.875rem;
+    overflow-wrap: anywhere;
+  }
+
+  /* El padding del propio logo dibuja el área de salvado (1 X del BrandBook, página 7). */
+  .sheet :global(.sheet-zone) {
+    padding: var(--logo-clear);
+    border: 2px dashed currentColor;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Por debajo de 64em la zona reduce su padding para no desbordar; el logo nunca se reduce. */
+  @media (max-width: 63.99em) {
+    .sheet :global(.sheet-zone) {
+      padding: min(var(--logo-clear), 1.5rem);
+    }
+  }
+</style>

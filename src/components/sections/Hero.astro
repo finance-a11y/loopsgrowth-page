@@ -1,0 +1,292 @@
+---
+/**
+ * Hero (CONT-01). Trae el único h1 de la página. Todo el texto sale del YAML y se
+ * imprime como nodo de texto, tal cual, sea cual sea el estado de su afirmación:
+ * este componente no lee el estado (COPY-01).
+ * Orden del DOM y visual: h1, subtítulo, descripción, CTA, collage. Por indicación de Juan
+ * (2026-09-20) el CTA va al final de los párrafos; el CTA del header sigue visible arriba en móvil
+ * (antes subía sobre la descripción por presupuesto de altura, 02-01-PLAN). El collage es
+ * decorativo (aria-hidden) y va al final del DOM: el lector de pantalla no lo recorre.
+ */
+import { Image } from 'astro:assets';
+import CtaLink from '../CtaLink.astro';
+import LangText from '../ui/LangText.astro';
+import HeroCollage from '../collage/HeroCollage.astro';
+import { getLanding, fill, textVars, ctaLabel } from '../../lib/content';
+import { CLIENT_LOGO_SIZE, CLIENT_LOGOS } from './hero-clients.mjs';
+
+const data = await getLanding();
+const subtitle = fill(data.hero.subtitle, textVars(data), 'hero.subtitle');
+const label = ctaLabel(data);
+
+// Cada cliente se empareja con su logo por el nombre en minúsculas (src/assets/clients/<nombre>.webp). Sin logo
+// para un nombre, o un logo sin nombre, el build falla antes de publicar una tarjeta a medias.
+const logos = import.meta.glob('../../assets/clients/*.webp', { eager: true, import: 'default' }) as Record<string, ImageMetadata>;
+const clients = data.hero.clients.items.map((item) => {
+  const id = item.text.toLowerCase();
+  const src = logos[`../../assets/clients/${id}.webp`];
+  if (!src || !CLIENT_LOGOS.includes(id)) throw new Error(`Cliente "${item.text}" sin logo en src/assets/clients/ o fuera del manifiesto (ids: ${CLIENT_LOGOS.join(', ')}).`);
+  return { name: item.text, id, src };
+});
+---
+
+<section id="inicio" class="hero" aria-labelledby="hero-title" data-tone="light">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <h1 id="hero-title">{data.hero.h1.text}</h1>
+      <p class="hero-sub"><LangText text={subtitle} /></p>
+      <div class="hero-desc">
+        {data.hero.description.map((line) => <p>{line.text}</p>)}
+      </div>
+      <div class="hero-cta">
+        <CtaLink label={label} location="hero" />
+      </div>
+    </div>
+    <div class="hero-clients">
+      <p class="hero-clients-label" id="hero-clients-label">{data.hero.clients.label.text}</p>
+      <ul class="hero-clients-list" role="list" aria-labelledby="hero-clients-label">
+        {
+          clients.map((client) => (
+            <li class="client-card" data-client={client.id}>
+              <Image
+                class="client-logo"
+                src={client.src}
+                alt=""
+                width={CLIENT_LOGO_SIZE}
+                height={CLIENT_LOGO_SIZE}
+                loading="lazy"
+                decoding="async"
+                data-client-logo={client.id}
+              />
+              <span class="client-name">{client.name}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <div class="hero-art">
+      <HeroCollage />
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding-top: 3rem;
+    padding-bottom: var(--section-y);
+    overflow-x: clip;
+    scroll-margin-top: 1.5rem;
+  }
+
+  @media (min-width: 64em) {
+    .hero {
+      padding-top: 4rem;
+    }
+  }
+
+  /* A y B: una columna. C (desde 64em): texto 7fr, collage 5fr, centrado en vertical. */
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 3rem;
+  }
+
+  .hero-copy,
+  .hero-art {
+    min-width: 0;
+  }
+
+  .hero-art {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* La escena da su alto por proporción (560 x 520). A (menos de 640 px): 258 px de ancho, 240 de alto.
+     B (640 a 1023 px): 344 y 320. */
+  .hero-art :global(.hero-collage) {
+    width: 100%;
+    max-width: 16.15rem;
+  }
+
+  @media (min-width: 40em) {
+    .hero-art :global(.hero-collage) {
+      max-width: 21.54rem;
+    }
+  }
+
+  @media (min-width: 64em) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      align-items: center;
+    }
+
+    .hero-art :global(.hero-collage) {
+      width: min(100%, 30rem);
+      max-width: none;
+    }
+  }
+
+  .hero h1,
+  .hero p {
+    overflow-wrap: anywhere;
+  }
+
+  .hero-sub,
+  .hero-desc p {
+    max-width: 55ch;
+    font-weight: 400;
+    color: var(--on-surface);
+  }
+
+  .hero-sub {
+    margin-top: 1.5rem;
+  }
+
+  .hero-desc {
+    margin-top: 2rem;
+  }
+
+  .hero-cta {
+    margin-top: 2rem;
+  }
+
+  .hero-desc p + p {
+    margin-top: 1rem;
+  }
+
+  /* Clientes: rejilla estática de tarjetas pop pequeñas (sin movimiento: SC 2.2.2). 3 columnas en móvil, 4 desde
+     40em y 6 desde 48em; los 12 siempre visibles. */
+  .hero-clients {
+    min-width: 0;
+  }
+
+  /* Rol Label del sistema (14 px, 600): la etiqueta introduce la lista, no compite con el CTA ni con los párrafos. */
+  .hero-clients-label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--on-surface);
+  }
+
+  .hero-clients-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Tarjeta pop como las demás (Pilar, Métrica, Equipo): borde y sombra por token, radio de tarjeta. Fondo crema (par
+     oscuro sobre crema medido, 14.37, como las tarjetas pares de Pilares) y cada logo sobre su propio azulejo blanco:
+     cuatro logos vienen con fondo transparente y tres con fondo blanco, y así los 12 quedan sobre el mismo soporte. */
+  .client-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    padding: 0.5rem 0.125rem 0.625rem;
+    border: var(--border-pop);
+    border-radius: var(--radius-card);
+    background: var(--color-brand-cream);
+    color: var(--on-surface);
+    box-shadow: var(--shadow-pop);
+    text-align: center;
+  }
+
+  .client-card :global(.client-logo) {
+    display: block;
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--radius-s);
+    background: var(--color-brand-white);
+    object-fit: cover;
+  }
+
+  .client-name {
+    max-width: 100%;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  @media (min-width: 40em) {
+    .hero-clients-list {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* Desde 48em, 2 filas de 6. Desde 64em el bloque abarca las dos columnas de la rejilla y queda justo bajo el CTA,
+     con el collage centrado junto al texto; el orden del DOM no cambia. */
+  @media (min-width: 48em) {
+    .hero-clients-list {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .client-card {
+      padding: 0.75rem 0.5rem 0.875rem;
+    }
+
+    .client-card :global(.client-logo) {
+      width: 3.5rem;
+      height: 3.5rem;
+    }
+  }
+
+  /* Móvil (menos de 40em, donde el CTA del header aún no se muestra): ritmo vertical compacto para que el CTA del
+     hero, que va tras los tres párrafos, caiga dentro del primer pantallazo (quick 260920-name-geo-hero-mobile).
+     Solo CSS: mismo orden, mismo copy y mismos elementos. El interlineado de los párrafos (1.6) y su ancho máximo
+     no cambian; el CTA conserva su alto de 48 px. Desde 40em todo queda como estaba. */
+  @media (max-width: 39.99em) {
+    .hero {
+      padding-top: 1.25rem;
+      padding-bottom: 3rem;
+    }
+
+    .hero-grid {
+      gap: 2rem;
+    }
+
+    /* Tamaño del h1 en móvil: de 36 px a unos 32 px (30 a 33 px según el ancho), bajo el mínimo de la escala
+       de pantalla (2.25rem) solo aquí; desde 40em vuelve `--text-display`. */
+    .hero h1 {
+      font-size: clamp(1.875rem, 1.5rem + 2.2vw, 2.25rem);
+    }
+
+    .hero-sub {
+      margin-top: 0.875rem;
+    }
+
+    .hero-desc {
+      margin-top: 1rem;
+    }
+
+    .hero-desc p + p {
+      margin-top: 0.75rem;
+    }
+
+    .hero-cta {
+      margin-top: 1.25rem;
+    }
+  }
+
+  @media (min-width: 64em) {
+    .hero-copy {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .hero-art {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .hero-clients {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+  }
+</style>

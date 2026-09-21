@@ -1,0 +1,14 @@
+es:
+  brand:
+    name:
+      text: "Loops Growth"
+      status: verified
+  hero:
+    h1:
+      text: "Crecemos tu tienda a través de Google, ChatGPT y Gemini."
+      status: verified
+    subtitle:
+      text: "Un equipo dedicado — y especializado."
+      status: verified
+  config:
+    form_url: "https://forms.example.com/f/abc"

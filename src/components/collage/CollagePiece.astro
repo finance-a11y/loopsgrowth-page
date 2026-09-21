@@ -1,0 +1,63 @@
+---
+/**
+ * Una pieza suelta del collage de marca: un gráfico SVG decorativo que invoca un símbolo del sprite
+ * (`CollageSprite`, montado una vez por página). Sin título, sin texto, sin imágenes.
+ *
+ * `name`: ojos, lupa (los dos Loopy oficiales), flecha, destello, asterisco, mas, garabato o puntos.
+ * `tone` es obligatoria y valida el build. Loopy toma su esquema del tono (`pieceScheme`: A sobre
+ * light y yellow con clase `lp-a`, B sobre purple con `lp-b`; sobre dark lanza) y no acepta `color`.
+ * Un garabato o la retícula toman `color` (por defecto `defaultPieceColor(tone)`), que pasa por
+ * `assertToneSafe` y se traduce a `var(--color-brand-*)`; nunca hay un valor literal.
+ * `rotate` fija una rotación estática (`--r`) y `size` el ancho CSS. `data-collage-piece` identifica la pieza.
+ */
+import { assertToneSafe, defaultPieceColor, fillVar, pieceScheme, pieceSymbol } from './collage-rules.mjs';
+
+interface Props {
+  name: 'ojos' | 'lupa' | 'flecha' | 'destello' | 'asterisco' | 'mas' | 'garabato' | 'puntos' | (string & {});
+  tone: 'light' | 'yellow' | 'dark' | 'purple';
+  color?: 'yellow' | 'orange' | 'purple' | 'white' | 'dark' | 'cream';
+  size?: string;
+  rotate?: number;
+  class?: string;
+}
+
+const { name, tone, color, size, rotate, class: className } = Astro.props;
+const piece = pieceSymbol(name);
+const scheme = pieceScheme(name, tone);
+if (scheme && color) {
+  throw new Error(`CollagePiece "${name}": el color de Loopy lo fija el esquema (${scheme}); no se le pasa "color".`);
+}
+const tint = scheme ? undefined : (color ?? defaultPieceColor(tone));
+assertToneSafe(tone, [tint], `CollagePiece "${name}"`);
+
+const style = [
+  tint && `--cf-a:${fillVar(tint)}`,
+  rotate !== undefined && `--r:${rotate}deg`,
+  `width:${size ?? (piece.family === 'loopy' ? '10rem' : `${piece.w / 16}rem`)}`,
+]
+  .filter(Boolean)
+  .join(';');
+---
+
+<svg
+  class:list={['collage-piece', scheme === 'A' && 'lp-a', scheme === 'B' && 'lp-b', className]}
+  data-collage="piece"
+  data-collage-piece={name}
+  data-collage-tone={tone}
+  viewBox={`0 0 ${Number(piece.w.toFixed(2))} ${Number(piece.h.toFixed(2))}`}
+  aria-hidden="true"
+  focusable="false"
+  style={style}
+>
+  <use href={`#${piece.symbol}`}></use>
+</svg>
+
+<style>
+  .collage-piece {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    overflow: visible;
+    transform: rotate(var(--r, 0deg));
+  }
+</style>

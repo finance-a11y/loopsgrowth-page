@@ -1,0 +1,58 @@
+---
+/**
+ * Header mínimo, en el flujo normal (ni fijo ni pegado arriba) para no tapar el foco
+ * (SC 2.4.11). El logo es la mesa 06 del vectorial de Ari (DSGN-02): sin enlace en `/` y con
+ * enlace a `/` en cualquier otra ruta.
+ * Monta el sprite del collage una sola vez por página, fuera del landmark (si BaseLayout lo
+ * asume después, basta mover esa línea).
+ * El CTA se oculta con `display: none` por debajo de 640 px: así sale también del
+ * orden de tabulación y el CTA del hero queda como único acceso en móvil.
+ */
+import CtaLink from './CtaLink.astro';
+import Logo from './brand/Logo.astro';
+import CollageSprite from './collage/CollageSprite.astro';
+import { getLanding, ctaLabel } from '../lib/content';
+
+const data = await getLanding();
+const label = ctaLabel(data);
+const isHome = Astro.url.pathname === '/';
+const homeHref = isHome ? undefined : '/';
+// En otras rutas `#agenda` no existe: el CTA lleva a la home con el ancla.
+const ctaHref = isHome ? '#agenda' : '/#agenda';
+// Un solo valor alimenta el tono del header y el del logo, para que no puedan separarse.
+const tone = 'light';
+---
+
+<CollageSprite />
+
+<header class="site-header" data-tone={tone}>
+  <div class="wrap bar">
+    <Logo name={data.brand.name.text} href={homeHref} tone={tone} />
+    <div class="header-cta">
+      <CtaLink label={label} location="header" href={ctaHref} />
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    padding-block: 1rem;
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .header-cta {
+    display: none;
+  }
+
+  @media (min-width: 40em) {
+    .header-cta {
+      display: block;
+    }
+  }
+</style>

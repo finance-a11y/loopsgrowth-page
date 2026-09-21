@@ -1,0 +1,68 @@
+---
+/**
+ * Píldora con una palabra en negrita (rasgo 4 del moodboard). Es texto HTML real dentro de una
+ * composición con aria-hidden: nunca un elemento de texto SVG ni contenido generado por CSS, porque
+ * los lectores de pantalla anuncian ese contenido. No es focalizable y su palabra sale de la lista
+ * cerrada de `CHIP_WORDS`. Se coloca en porcentajes de la escena y el tamaño de letra va en `cqw`,
+ * así escala con la capa svg. Sombra dura del tono; sin movimiento propio.
+ */
+import { CHIP_WORDS, assertPill, fillVar } from './collage-rules.mjs';
+
+interface Props {
+  word: string;
+  tone: 'light' | 'yellow' | 'dark' | 'purple';
+  bg: 'yellow' | 'orange' | 'purple' | 'white' | 'dark' | 'cream';
+  fg: 'yellow' | 'orange' | 'purple' | 'white' | 'dark' | 'cream';
+  x: number;
+  y: number;
+  anchor: 'left' | 'right';
+  fs: number;
+  sceneW: number;
+  sceneH: number;
+  shape?: 'pill' | 'card';
+  where?: string;
+}
+
+const { word, tone, bg, fg, x, y, anchor, fs, sceneW, sceneH, shape = 'pill', where = 'píldora' } = Astro.props;
+assertPill(tone, bg, fg, word, where);
+const entry = CHIP_WORDS.find((w) => w.word === word);
+const n = (v: number) => Number(v.toFixed(2));
+const side = anchor === 'right' ? `right:${n(((sceneW - x) / sceneW) * 100)}%` : `left:${n((x / sceneW) * 100)}%`;
+const style = `${side};top:${n((y / sceneH) * 100)}%;font-size:${n((fs / sceneW) * 100)}cqw;--pl-bg:${fillVar(bg)};--pl-fg:${fillVar(fg)}`;
+---
+
+<span
+  class:list={['cw-pill', shape === 'card' && 'cw-pill-card']}
+  data-pill={word}
+  data-trait="pill"
+  aria-hidden="true"
+  lang={entry?.lang === 'en' ? 'en' : undefined}
+  style={style}>{word}</span>
+
+<style is:global>
+  .cw-pill {
+    position: absolute;
+    box-sizing: border-box;
+    padding: 0.32em 0.8em;
+    border-radius: 999px;
+    background: var(--pl-bg);
+    color: var(--pl-fg);
+    box-shadow: 0.2em 0.2em 0 var(--pop-shadow-color);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0;
+    white-space: nowrap;
+    /* Las tarjetas que traen overflow-wrap: anywhere reducirían el ancho mínimo a una letra. */
+    overflow-wrap: normal;
+    word-break: normal;
+    pointer-events: none;
+  }
+
+  .cw-pill-card {
+    width: min-content;
+    padding: 0.45em 0.7em;
+    border-radius: 0.45em;
+    text-align: center;
+    white-space: normal;
+  }
+</style>

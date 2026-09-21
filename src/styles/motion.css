@@ -1,0 +1,76 @@
+/*
+ * Movimiento de la fase 2 (plan 02-07, DSGN-05). Único archivo de movimiento nuevo: todo vive dentro
+ * de un solo `@media (prefers-reduced-motion: no-preference)`, solo con `transform`, finito y sin
+ * tocar la opacidad, la visibilidad ni la pantalla. Con `reduce` la página no tiene ninguna animación.
+ *
+ * Entrada del collage del hero: los seis grupos `[data-piece]` (stage, panel, loopy, pills, doodles y
+ * dots) y el marco de foto `[data-piece-of="panel"]` llegan una sola vez, en 600 ms, con un retraso
+ * de `--i` por 80 ms (de 0 a 400 ms): fin a 1000 ms. Cada pieza es visible desde el primer cuadro.
+ * El último cuadro es el reposo, sin transform en el elemento exterior (contrato de 02-10), así que
+ * no aplica `--r`: usarlo haría saltar la pieza al terminar. El relleno es `backwards`: al acabar,
+ * el elemento vuelve a su estilo estático, igual que con `reduce`, y `getAnimations()` vale 0.
+ *
+ * El alcance es `#inicio`: la hoja `/marca/hoja/` y cualquier otro collage siguen estáticos.
+ * Pupilas del Loopy oficial: una sola mirada hacia el CTA, en 400 ms, con el retraso de `--hc-end` (al
+ * terminar la entrada). Las dos pupilas viven dentro del svg en línea, así que `--look` (unidades del
+ * arte del Loopy, que a la escala del hero son pocos px de pantalla) las mueve a ambas. El único cuadro
+ * `from` las coloca del lado opuesto al CTA y la animación las lleva a su reposo estático; el relleno
+ * es `backwards`, así que al terminar no queda ninguna animación viva. Dirección `--look-dx/--look-dy`
+ * medida con el producto punto contra el CTA: bajo 64 em el collage va debajo del CTA (mira hacia
+ * arriba) y desde 64 em va a su derecha (mira hacia la izquierda).
+ *
+ * Icono del FAQ: la barra vertical `.faq-icon-v` gira 90 grados al abrir (la regla de `Faq.astro`) con
+ * una transición de `transform` de `--dur-1` (150 ms). La transición vive solo aquí (CONT-11).
+ *
+ * `--r` y `--r-from` son grados sin unidad (02-02): de ahí `calc(... * 1deg)`.
+ * `transform-box: fill-box` solo surte efecto en los `<g>` del svg; el grupo HTML `pills` y el marco
+ * de foto pivotan con `transform-origin: center` sobre su propia caja.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  #inicio {
+    --hc-dur: 600ms;
+    --hc-step: 80ms;
+    --hc-end: calc(var(--hc-step) * 5 + var(--hc-dur));
+    --look: 8px;
+    --look-dx: 0;
+    --look-dy: -1;
+  }
+
+  @media (min-width: 64em) {
+    #inicio {
+      --look-dx: -1;
+      --look-dy: 0;
+    }
+  }
+
+  @keyframes hc-enter {
+    from {
+      transform: scale(0.94) rotate(calc(var(--r-from, 0) * 1deg));
+    }
+    to {
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+  #inicio :is([data-piece], [data-piece-of]) {
+    animation: hc-enter var(--hc-dur) var(--ease-out) backwards;
+    animation-delay: calc(var(--i, 0) * var(--hc-step));
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  @keyframes hc-look {
+    from {
+      transform: translate(calc(var(--look-dx) * var(--look) * -1), calc(var(--look-dy) * var(--look) * -1));
+    }
+  }
+
+  #inicio :is(.hc-pupil, [data-pupil]) {
+    animation: hc-look 400ms var(--ease-out) backwards;
+    animation-delay: var(--hc-end);
+  }
+
+  .faq-icon-v {
+    transition: transform var(--dur-1) var(--ease-out);
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "loopsgrowth-page",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "dev:lan": "astro dev --host",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "test:guards": "node --test tests/guards/*.test.mjs",
+    "prebuild": "node scripts/check-contrast.mjs && node scripts/check-copy.mjs && node scripts/check-photos.mjs",
+    "check:copy": "node scripts/check-copy.mjs",
+    "postbuild": "node scripts/check-copy.mjs --dist dist",
+    "pending": "node scripts/list-pending.mjs",
+    "test:e2e": "playwright test",
+    "test:e2e:offline": "playwright test --project=chromium",
+    "test:e2e:isolated": "E2E_BLOCK_CLICKUP=1 playwright test --project=chromium",
+    "test:e2e:live": "playwright test --project=live"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "3.7.4",
+    "@tailwindcss/vite": "4.3.3",
+    "astro": "7.3.3",
+    "tailwindcss": "4.3.3",
+    "vite": "8.3.0",
+    "yaml": "2.9.1"
+  },
+  "allowScripts": {
+    "esbuild": true
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.63.0"
+  }
+}

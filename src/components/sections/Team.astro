@@ -1,0 +1,212 @@
+---
+/**
+ * Quiénes somos (CONT-07). Tono yellow. Cuatro tarjetas pop en el orden del doc de Ari: retrato real en
+ * duotono de marca (tres integrantes) o avatar Loopy (quien no tiene foto, hoy Miguel Pacheco), nombre y
+ * cargo. Imprime solo `.text` de cada afirmación, sin leer su estado (COPY-01): los nombres son `pending`
+ * (consentimiento del integrante) y se muestran igual.
+ *
+ * Excepción de Juan (2026-09-20) al "sin enlaces" de UI-SPEC sección 7: su tarjeta lleva un enlace a su
+ * sitio (`member.link` en el YAML, opcional). Es externo: `target="_blank"` con `rel="noopener noreferrer"`,
+ * el texto visible es el nombre accesible y `hint` lo complementa solo para lectores de pantalla (SC 2.5.3).
+ * Cualquier otra tarjeta sin `link` sigue sin enlaces.
+ *
+ * Fotos: PNG locales de src/assets/team/treated (tratamiento en scripts/photos/treat-team.mjs, procedencia
+ * en src/assets/team/PROVENANCE.md, puerta de producción en scripts/check-photos.mjs). Son decorativas
+ * (`alt=""`): el nombre de la persona está en el `h3` de la misma tarjeta y repetirlo en el `alt` haría que
+ * el lector de pantalla lo dijera dos veces (A11Y.md, imágenes decorativas o redundantes).
+ */
+import { Image } from 'astro:assets';
+import SectionShell from '../ui/SectionShell.astro';
+import Avatar from '../collage/Avatar.astro';
+import { getLanding } from '../../lib/content';
+import { TEAM_PHOTOS, TEAM_PHOTO_OUT, teamPhotoAt } from './team-photos.mjs';
+
+const data = await getLanding();
+// Los avatares y las fotos se asignan por posición desde aquí y no desde el YAML: una cadena suelta dentro
+// de `es` rompe la guarda FND-02 (BARE_STRING). Los avatares solo cambian la cantidad de ojos y el color del
+// disco; no son retratos.
+const AVATARS = ['ojo-morado', 'ojo-amarillo', 'ojos-morado', 'ojos-amarillo'] as const;
+
+const photos = import.meta.glob('../../assets/team/treated/*.png', { eager: true, import: 'default' }) as Record<string, ImageMetadata>;
+const photoSrc = (id: string) => {
+  const src = photos[`../../assets/team/treated/${id}.png`];
+  if (!src) throw new Error(`No existe la foto tratada del equipo "${id}" (ids: ${TEAM_PHOTOS.map((p) => p.id).join(', ')}).`);
+  return src;
+};
+---
+
+<SectionShell id="nosotros" tone="yellow" title={data.team.title.text}>
+  <ul class="team-grid" role="list">
+    {
+      data.team.members.map((member, i) => {
+        const photo = teamPhotoAt(i);
+        return (
+          <li class="team-card" data-tone="light">
+            <div class="team-avatar">
+              {photo ? (
+                <Image
+                  class="team-photo"
+                  src={photoSrc(photo.id)}
+                  alt=""
+                  width={TEAM_PHOTO_OUT}
+                  height={TEAM_PHOTO_OUT}
+                  format="webp"
+                  quality={82}
+                  loading="lazy"
+                  decoding="async"
+                  data-team-photo={photo.id}
+                />
+              ) : (
+                <Avatar variant={AVATARS[i]} />
+              )}
+            </div>
+            <h3>{member.name.text}</h3>
+            <p class="team-role">{member.role.text}</p>
+            {member.link && (
+              <p class="team-link-row">
+                <a class="team-link" href={member.link.url.text} target="_blank" rel="noopener noreferrer">
+                  {member.link.label.text}
+                  <span class="team-link-hint">{member.link.hint.text}</span>
+                  {/* Enlace externo (Tabler `external-link`, MIT), decorativo: el texto oculto ya dice que se abre aparte. */}
+                  <svg class="team-link-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6" />
+                    <path d="M11 13l9 -9" />
+                    <path d="M15 4h5v5" />
+                  </svg>
+                </a>
+              </p>
+            )}
+          </li>
+        );
+      })
+    }
+  </ul>
+</SectionShell>
+
+<style>
+  .team-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--card-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Columna flexible: el enlace de una tarjeta no la hace más alta que las demás (la fila de la rejilla ya
+     estira las cuatro al mismo alto) y el cargo queda siempre en la misma línea base entre fotos y avatar. */
+  .team-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: var(--card-pad);
+    border: var(--border-pop);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    color: var(--on-surface);
+    box-shadow: var(--shadow-pop);
+    text-align: start;
+  }
+
+  .team-avatar {
+    --team-box: 6rem;
+    width: var(--team-box);
+    aspect-ratio: 1;
+    flex: none;
+  }
+
+  .team-avatar :global(svg) {
+    width: 100%;
+    /* El arte oficial trae aire propio a la izquierda (unos 7 %): se compensa para que el disco alinee con el nombre. */
+    margin-inline-start: -6.7%;
+  }
+
+  /* Retrato: disco de las mismas medidas que el del avatar Loopy dentro de su caja (5/6 del lado, bajado un
+     1/15 del lado y con la sombra dura al 5 % del lado), sin contorno como el collage. La imagen ya trae el color
+     del disco en las luces (duotono), así que basta recortarla en círculo. Así las tarjetas con foto y la del avatar
+     comparten disco, sombra y línea base. */
+  .team-avatar :global(.team-photo) {
+    display: block;
+    width: 83.333%;
+    height: auto;
+    aspect-ratio: 1;
+    margin-top: 6.667%;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: calc(var(--team-box) * 0.05) calc(var(--team-box) * 0.05) 0 var(--pop-shadow-color);
+  }
+
+  .team-card h3 {
+    margin-top: 1rem;
+    overflow-wrap: anywhere;
+  }
+
+  .team-role {
+    margin-top: 0.5rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .team-link-row {
+    margin-top: 0.5rem;
+  }
+
+  /* Mismo enlace externo que el de respaldo del formulario (AgendaSection): subrayado permanente, objetivo
+     táctil de 44 px, foco global del tono y sin `aria-label` que reemplace el texto visible. */
+  .team-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: var(--target-min);
+    min-width: var(--target-min);
+    color: var(--link);
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    overflow-wrap: anywhere;
+  }
+
+  .team-link:hover {
+    text-decoration-thickness: 3px;
+  }
+
+  .team-link-icon {
+    flex: none;
+  }
+
+  /* Solo para lectores de pantalla: ocupa 1 px y no aporta ancho ni altura visibles. */
+  .team-link-hint {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (min-width: 40em) {
+    .team-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .team-avatar {
+      --team-box: 7.5rem;
+    }
+  }
+
+  @media (min-width: 64em) {
+    .team-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    /* Reserva dos líneas de nombre: un nombre que baja de línea no desalinea los cargos de las otras tarjetas. */
+    .team-card h3 {
+      min-height: 2lh;
+    }
+  }
+</style>

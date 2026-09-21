@@ -1,0 +1,100 @@
+---
+/**
+ * Para quién es y para quién no (CONT-10). Tono light. Dos tarjetas en el orden del DOM "es" y "no es":
+ * la primera amarilla con borde sólido y sombra pop, la segunda blanca con borde discontinuo y sin sombra.
+ * La diferencia no depende del color: cambian el icono (check o x), el trazo del borde y el h3.
+ * Imprime solo `.text` de cada afirmación, sin leer su estado (COPY-01): hoy todas son `pending`
+ * (FALTA CONFIRMAR) y se muestran igual. Las tarjetas no son interactivas: sin CTA, enlaces ni hover.
+ */
+import SectionShell from '../ui/SectionShell.astro';
+import { getLanding } from '../../lib/content';
+
+const data = await getLanding();
+const { for_whom } = data;
+
+const columns = [
+  { key: 'is_for', id: 'para-quien-es-title', cls: 'fw-is-for', tone: 'yellow', data: for_whom.is_for, icon: 'check' },
+  { key: 'is_not_for', id: 'para-quien-no-es-title', cls: 'fw-is-not-for', tone: 'light', data: for_whom.is_not_for, icon: 'x' },
+] as const;
+---
+
+<SectionShell id="para-quien" tone="light" title={for_whom.title.text}>
+  <div class="fw-grid">
+    {
+      columns.map((col) => (
+        <div class={`fw-card ${col.cls}`} data-tone={col.tone}>
+          <h3 id={col.id}>{col.data.title.text}</h3>
+          <ul class="fw-list" role="list" aria-labelledby={col.id}>
+            {col.data.items.map((item) => (
+              <li class="fw-item">
+                <svg class="fw-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+                  {col.icon === 'check' ? <path d="M5 12l5 5l10 -10" /> : <path d="M6 6l12 12M18 6l-12 12" />}
+                </svg>
+                <span class="fw-text">{item.text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</SectionShell>
+
+<style>
+  .fw-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+
+  .fw-card {
+    min-width: 0;
+    padding: var(--card-pad);
+    border-radius: var(--radius-card);
+  }
+
+  .fw-is-for {
+    border: var(--border-pop);
+    box-shadow: var(--shadow-pop);
+  }
+
+  .fw-is-not-for {
+    border: 3px dashed var(--color-brand-dark);
+  }
+
+  .fw-list {
+    display: grid;
+    gap: 1rem;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .fw-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+
+  .fw-icon {
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .fw-text {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  @media (min-width: 40em) {
+    .fw-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

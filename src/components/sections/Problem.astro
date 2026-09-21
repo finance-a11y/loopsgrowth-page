@@ -1,0 +1,52 @@
+---
+/**
+ * El problema (CONT-02). Tono dark. Todo el texto sale del YAML y se imprime como nodo de texto,
+ * tal cual: este componente no lee `status`, `reason` ni `confirm_by` (COPY-01). Sin CTA.
+ * Tres dolores en tarjetas blancas (los párrafos 1 a 3 del doc) y la frase final (párrafo 4).
+ */
+import SectionShell from '../ui/SectionShell.astro';
+import PainCard from '../ui/PainCard.astro';
+import { getLanding } from '../../lib/content';
+
+const data = await getLanding();
+// Pegatinas en el orden de los dolores: anuncios pagados, búsqueda orgánica, la competencia que te ve.
+const STICKERS = ['clic', 'lupa', 'ojos'] as const;
+---
+
+<SectionShell id="problema" tone="dark" title={data.problem.title.text}>
+  <ul role="list" class="pain-grid">
+    {data.problem.items.map((item, i) => <PainCard sticker={STICKERS[i]} text={item.text} />)}
+  </ul>
+  <p class="pain-closing">{data.problem.closing.text}</p>
+</SectionShell>
+
+<style>
+  /* `--card-shadow` se evalúa aquí, en el tono dark (naranja), y lo heredan las tarjetas de tono light. */
+  .pain-grid {
+    --card-shadow: var(--pop-shadow-color);
+    counter-reset: pain;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--card-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 64em) {
+    .pain-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items: stretch;
+    }
+  }
+
+  .pain-closing {
+    max-width: 40ch;
+    margin-top: 3rem;
+    font-size: var(--text-title);
+    line-height: var(--text-title--line-height);
+    font-weight: 700;
+    color: var(--on-surface);
+    overflow-wrap: anywhere;
+  }
+</style>

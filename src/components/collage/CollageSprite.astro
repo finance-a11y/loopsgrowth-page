@@ -1,0 +1,88 @@
+---
+/**
+ * Sprite del collage de marca: ocho símbolos `lg-*` que las escenas y las piezas invocan con
+ * `<use href>`. Se monta una sola vez por página (hoy dentro de SiteHeader), fuera de flujo y sin
+ * `display: none`, porque el contrato pide que siga renderizado. Es decorativo: `aria-hidden` y sin foco.
+ *
+ * Dos Loopy oficiales de Ari (`lg-ojos` y `lg-lupa`, rutas de `src/assets/loopy`), cinco garabatos
+ * de trazo de 3 px y la retícula de puntos. Sin degradados, sombras difusas, texto ni títulos. El aro
+ * y el anillo de Loopy leen `--lp-frame` y `--lp-rim`, que fijan las clases `lp-a` y `lp-b` (esquema A
+ * sobre light y yellow, B sobre purple); iris, pupila y brillo llevan su color oficial. Los garabatos
+ * y la retícula leen `--cf-a`, que fija quien los usa con un color de marca ya validado para el tono.
+ * Las variables atraviesan el `<use>`. Ninguna pieza tiene movimiento propio.
+ */
+import { loopyGeometry } from './loopy.mjs';
+
+const loopyParts = (kind) =>
+  loopyGeometry(kind).parts.map((p) => ({
+    d: p.d,
+    fill: p.fill,
+    cls: p.role === 'frame' ? 'lg-frame' : p.role === 'rim' ? 'lg-rim' : undefined,
+  }));
+const ojos = { viewBox: loopyGeometry('ojos').viewBox.join(' '), parts: loopyParts('ojos') };
+const lupa = { viewBox: loopyGeometry('lupa').viewBox.join(' '), parts: loopyParts('lupa') };
+const grid = Array.from({ length: 24 }, (_, i) => ({ cx: 8 + 16 * (i % 6), cy: 8 + 16 * Math.floor(i / 6) }));
+---
+
+<svg class="collage-sprite" aria-hidden="true" focusable="false" width="0" height="0" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="lg-ojos" viewBox={ojos.viewBox}>
+    {ojos.parts.map((p) => <path class={p.cls} fill={p.fill} d={p.d}></path>)}
+  </symbol>
+  <symbol id="lg-lupa" viewBox={lupa.viewBox}>
+    {lupa.parts.map((p) => <path class={p.cls} fill={p.fill} d={p.d}></path>)}
+  </symbol>
+  <symbol id="lg-flecha" viewBox="0 0 64 48">
+    <path class="lg-line" d="M4 42C14 18 34 10 58 12M46 3L58 12L47 23"></path>
+  </symbol>
+  <symbol id="lg-destello" viewBox="0 0 32 32">
+    <path class="lg-line" d="M16 4V13M5 9L12 15M27 9L20 15"></path>
+  </symbol>
+  <symbol id="lg-asterisco" viewBox="0 0 32 32">
+    <path class="lg-line" d="M16 4V28M5 10L27 22M27 10L5 22"></path>
+  </symbol>
+  <symbol id="lg-mas" viewBox="0 0 24 24">
+    <path class="lg-line" d="M12 4V20M4 12H20"></path>
+  </symbol>
+  <symbol id="lg-garabato" viewBox="0 0 96 24">
+    <path class="lg-line" d="M4 15C10 3 16 3 22 12S34 21 41 12 53 3 60 12 72 21 78 12 86 5 92 11"></path>
+  </symbol>
+  <symbol id="lg-puntos" viewBox="0 0 96 64">
+    {grid.map((d) => <circle class="lg-dot" cx={d.cx} cy={d.cy} r="3"></circle>)}
+  </symbol>
+</svg>
+
+<style is:global>
+  .collage-sprite {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  /* Loopy por esquema (A: aro morado, anillo crema; B: al revés) y trazos de garabato de 3 px. */
+  .lg-frame {
+    fill: var(--lp-frame);
+  }
+  .lg-rim {
+    fill: var(--lp-rim);
+  }
+  .lp-a {
+    --lp-frame: var(--color-brand-purple);
+    --lp-rim: var(--color-brand-cream);
+  }
+  .lp-b {
+    --lp-frame: var(--color-brand-cream);
+    --lp-rim: var(--color-brand-purple);
+  }
+  .lg-line {
+    fill: none;
+    stroke: var(--cf-a);
+    stroke-width: 3px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .lg-dot {
+    fill: var(--cf-a);
+  }
+</style>

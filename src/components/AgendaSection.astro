@@ -1,0 +1,207 @@
+---
+/**
+ * Sección #agenda: destino de todos los CTA y cierre del recorrido (CONT-13). Tono morado, una
+ * columna debajo de 1024 px y dos (5fr / 7fr) desde `lg`, con el orden del DOM igual al visual. El
+ * titular es el del CTA final del doc de Ari, tal cual (con su errata). La columna izquierda cierra
+ * con `AgendaCollage`, decorativo y solo desde 1024 px: el arte vive dentro de su propia caja, así
+ * que nunca toca la tarjeta del formulario ni su anillo de foco. Ningún CTA vive en esta sección.
+ * El enlace de respaldo y el `noscript` existen siempre: el formulario nunca
+ * depende solo del iframe ni de JavaScript (FORM-03). Todo el texto sale del YAML
+ * y se muestra tal cual, sea cual sea el estado de su afirmación.
+ */
+import AgendaCollage from './collage/AgendaCollage.astro';
+import { getLanding, fill, textVars } from '../lib/content';
+
+const data = await getLanding();
+const { agenda, config } = data;
+const intro = fill(agenda.intro, textVars(data), 'agenda.intro');
+---
+
+<section id="agenda" aria-labelledby="agenda-title" data-tone="purple">
+  <div class="wrap agenda-grid">
+    <div class="agenda-copy">
+      <h2 id="agenda-title" class="section-title" tabindex="-1">{agenda.title.text}</h2>
+      <p class="agenda-intro">{intro}</p>
+      <div class="agenda-fallback">
+        <p class="agenda-fallback-lead">{agenda.fallback_lead.text}</p>
+        <a class="agenda-link" href={config.form_url} target="_blank" rel="noopener noreferrer">
+          {agenda.fallback_link.text}
+          <!-- Enlace externo (Tabler `external-link`, MIT), decorativo: el texto ya dice que se abre aparte. -->
+          <svg
+            class="agenda-link-icon"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"></path>
+            <path d="M11 13l9 -9"></path>
+            <path d="M15 4h5v5"></path>
+          </svg>
+        </a>
+      </div>
+      <div class="agenda-art" aria-hidden="true">
+        <AgendaCollage class="agenda-collage" />
+      </div>
+    </div>
+
+    <div class="agenda-form">
+      <div class="form-embed">
+        <iframe
+          class="clickup-embed clickup-dynamic-height"
+          src={config.form_url}
+          title={agenda.iframe_title.text}
+          width="100%"
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        <script is:inline async src={config.form_script_src}></script>
+      </div>
+      <noscript>
+        <div class="agenda-noscript">
+          <p>{agenda.noscript.text}</p>
+          <a class="agenda-link" href={config.form_url} target="_blank" rel="noopener noreferrer">
+            {agenda.fallback_link.text}
+            <svg
+              class="agenda-link-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"></path>
+              <path d="M11 13l9 -9"></path>
+              <path d="M15 4h5v5"></path>
+            </svg>
+          </a>
+        </div>
+      </noscript>
+    </div>
+  </div>
+</section>
+
+<script>
+  import '../scripts/cta-focus';
+</script>
+
+<style>
+  #agenda {
+    padding-block: var(--section-y);
+    scroll-margin-top: 1.5rem;
+  }
+
+  /* Una columna: h2, intro, respaldo y tarjeta, en el orden del DOM. */
+  .agenda-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .agenda-copy,
+  .agenda-form {
+    min-width: 0;
+  }
+
+  .agenda-intro {
+    margin-top: 1rem;
+  }
+
+  .agenda-fallback {
+    margin-top: 1.5rem;
+  }
+
+  .agenda-fallback-lead {
+    font-weight: 400;
+  }
+
+  .agenda-noscript {
+    margin-top: 1.5rem;
+  }
+
+  /* Collage decorativo: solo desde 64em (el propio collage trae su display y su proporción). */
+  .agenda-art {
+    display: none;
+  }
+
+  /* Enlace de respaldo: subrayado permanente, no depende del color. */
+  .agenda-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: var(--target-min);
+    min-width: var(--target-min);
+    color: var(--link);
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+
+  .agenda-link:hover {
+    color: var(--color-brand-yellow);
+    text-decoration-thickness: 3px;
+  }
+
+  .agenda-link-icon {
+    flex: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .agenda-link {
+      transition: color var(--dur-1) var(--ease-out);
+    }
+  }
+
+  /* Tarjeta del formulario. El script de ClickUp pone `overflow: auto` en línea sobre
+     este contenedor; se vence para no crear una región de scroll sin foco por teclado. */
+  .form-embed {
+    background: var(--color-brand-white);
+    border: var(--border-pop);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-pop);
+    padding: 0;
+    overflow: visible !important;
+  }
+
+  /* Reserva de altura antes de que cargue el formulario: solo `min-height`. */
+  .form-embed iframe {
+    display: block;
+    width: 100%;
+    border: 0;
+    border-radius: var(--radius-m);
+    background: transparent;
+    min-height: var(--form-min-h-sm);
+  }
+
+  @media (min-width: 64em) {
+    .agenda-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      column-gap: 3rem;
+      align-items: start;
+    }
+
+    .agenda-copy {
+      align-self: start;
+    }
+
+    .agenda-art {
+      display: block;
+      margin-top: 2rem;
+    }
+
+    .form-embed iframe {
+      min-height: var(--form-min-h-lg);
+    }
+  }
+</style>

@@ -1,0 +1,55 @@
+---
+/**
+ * Dos saltos como primeros elementos enfocables de la página: al contenido (#main)
+ * y al formulario (#agenda). Fuera de pantalla con `transform`, nunca con
+ * `display: none` ni `visibility: hidden`, para que el teclado y los lectores de
+ * pantalla los alcancen. Al recibir foco aparecen arriba a la izquierda.
+ * El salto al formulario solo existe en `/`, donde está `#agenda`: en otras rutas el destino no
+ * existe y el CTA del header ya ofrece `/#agenda`.
+ */
+import { getLanding } from '../lib/content';
+
+const { skip } = await getLanding();
+const hasAgenda = Astro.url.pathname === '/';
+---
+
+<nav class="skip" aria-label={skip.nav_label.text}>
+  <a href="#main">{skip.content.text}</a>
+  {hasAgenda && <a href="#agenda">{skip.form.text}</a>}
+</nav>
+
+<style>
+  .skip a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target-min);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-s);
+    background: var(--color-brand-dark);
+    color: var(--color-brand-yellow);
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    font-weight: 600;
+    text-decoration: none;
+    transform: translateY(-200%);
+  }
+
+  .skip a:focus,
+  .skip a:focus-visible {
+    position: fixed;
+    top: 0.5rem;
+    left: 0.5rem;
+    transform: none;
+    outline: var(--focus-width) solid var(--color-brand-purple);
+    outline-offset: var(--focus-offset);
+    /* Anillo de dos tonos: el contorno morado de UI-SPEC se ve sobre el header claro, pero el
+       enlace es `fixed` y puede quedar sobre la sección #agenda (morada), donde el morado
+       desaparece. El amarillo rellena el hueco del offset: 10.22 sobre el fondo oscuro del
+       enlace y 5.43 sobre morado (pares ya aprobados). Así el foco se ve sobre cualquier tono. */
+    box-shadow: 0 0 0 var(--focus-offset) var(--color-brand-yellow);
+  }
+</style>

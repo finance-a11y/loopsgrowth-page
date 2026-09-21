@@ -1,0 +1,28 @@
+---
+/**
+ * Avatar Loopy para las tarjetas del equipo: cuatro variantes de una misma familia, el Loopy oficial
+ * de Ari sobre un disco con sombra dura (ojo-morado, ojo-amarillo, ojos-morado y ojos-amarillo).
+ * Sin cara, sin accesorio y sin píldora: no son retratos ni buscan parecido; el set lo aprueba Ari.
+ * Es la escena `avatar-<variante>` de `scenes.mjs` en modo `bare` (la raíz es el propio svg, cuadrado
+ * 1:1, decorativo y sin foco). `CollageScene` valida colores y geometría en el build.
+ */
+import CollageScene from './CollageScene.astro';
+
+interface Props {
+  variant: 'ojo-morado' | 'ojo-amarillo' | 'ojos-morado' | 'ojos-amarillo';
+  class?: string;
+}
+const { variant, class: className } = Astro.props;
+---
+
+<CollageScene scene={`avatar-${variant}`} variant={variant} bare class:list={['avatar', className]} />
+
+<style is:global>
+  svg.avatar {
+    display: block;
+    width: 100%;
+    max-width: 7.5rem;
+    height: auto;
+    aspect-ratio: 1;
+  }
+</style>
